@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Break Signal Viewer</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uplot@1.6.30/dist/uPlot.min.css">
+<script src="https://cdn.jsdelivr.net/npm/uplot@1.6.30/dist/uPlot.iife.min.js"></script>
+<script src="data.js"></script>
+<style>
+:root {
+  color-scheme: light;
+  --surface-0: #f4f4f2; --surface-1: #fcfcfb; --border: #e2e1dc;
+  --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #8a8984;
+  --grid: #ecebe7; --shade: rgba(120,120,110,0.09);
+  --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a;
+  --tau: #e34948; --online: #8a8984; --accent: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-0: #121211; --surface-1: #1a1a19; --border: #2e2e2c;
+    --text-primary: #ffffff; --text-secondary: #c3c2b7; --text-muted: #8a8984;
+    --grid: #262624; --shade: rgba(200,200,190,0.07);
+    --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70;
+    --tau: #e66767; --online: #8a8984; --accent: #3987e5;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-0: #121211; --surface-1: #1a1a19; --border: #2e2e2c;
+  --text-primary: #ffffff; --text-secondary: #c3c2b7; --text-muted: #8a8984;
+  --grid: #262624; --shade: rgba(200,200,190,0.07);
+  --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70;
+  --tau: #e66767; --online: #8a8984; --accent: #3987e5;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--surface-0); color: var(--text-primary);
+  font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; }
+header { display: flex; align-items: center; gap: 16px; padding: 10px 16px;
+  border-bottom: 1px solid var(--border); background: var(--surface-1); flex-wrap: wrap; }
+header h1 { font-size: 15px; margin: 0; font-weight: 600; }
+.tabs button, .btn { background: none; border: 1px solid var(--border); color: var(--text-secondary);
+  padding: 4px 10px; border-radius: 6px; cursor: pointer; font: inherit; }
+.tabs button.on, .btn.on { color: var(--text-primary); border-color: var(--accent); }
+.btn:hover, .tabs button:hover { color: var(--text-primary); }
+.wrap { display: flex; min-height: calc(100vh - 50px); }
+aside { width: 290px; flex: none; border-right: 1px solid var(--border); background: var(--surface-1);
+  display: flex; flex-direction: column; max-height: calc(100vh - 50px); position: sticky; top: 0; }
+.controls { padding: 10px 12px; display: grid; gap: 8px; border-bottom: 1px solid var(--border); }
+.controls label { display: grid; gap: 3px; color: var(--text-secondary); font-size: 12px; }
+select, input[type=range] { width: 100%; font: inherit; color: var(--text-primary);
+  background: var(--surface-0); border: 1px solid var(--border); border-radius: 6px; padding: 3px 4px; }
+.list { overflow-y: auto; flex: 1; }
+.row { padding: 6px 12px; border-bottom: 1px solid var(--border); cursor: pointer;
+  display: flex; justify-content: space-between; gap: 8px; }
+.row:hover { background: var(--surface-0); }
+.row.sel { background: var(--surface-0); box-shadow: inset 3px 0 0 var(--accent); }
+.row .k { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.tag { font-size: 11px; padding: 0 6px; border-radius: 9px; border: 1px solid var(--border); color: var(--text-secondary); }
+main { flex: 1; min-width: 0; padding: 12px 16px 40px; }
+.card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; }
+.card h3 { margin: 0 0 2px; font-size: 13px; font-weight: 600; }
+.card .sub { color: var(--text-muted); font-size: 12px; margin: 0 0 4px; }
+.head { display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.head .big { font-size: 18px; font-weight: 600; }
+.stats { display: flex; gap: 18px; flex-wrap: wrap; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.stats b { color: var(--text-primary); font-weight: 600; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 10px; }
+.guess { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.hint { color: var(--text-muted); font-size: 12px; }
+.legend { display: flex; gap: 12px; font-size: 12px; color: var(--text-secondary); }
+.sw { display: inline-block; width: 12px; height: 2px; vertical-align: middle; margin-right: 4px; border-radius: 1px; }
+.u-legend { display: none; }
+.uplot { font-family: inherit; }
+.tip { position: fixed; pointer-events: none; background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: 6px; padding: 4px 8px; font-size: 12px; color: var(--text-primary); z-index: 10;
+  font-variant-numeric: tabular-nums; display: none; box-shadow: 0 2px 8px rgba(0,0,0,.12); }
+.hidden { display: none !important; }
+@media (max-width: 800px) {
+  .wrap { flex-direction: column; }
+  aside { width: 100%; max-height: 45vh; position: static; }
+  .grid2 { grid-template-columns: 1fr; }
+  main { padding: 12px 16px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Break Signal Viewer</h1>
+  <div class="tabs"><button id="tabS" class="on">Series</button> <button id="tabE">Event study (all break series)</button></div>
+  <span class="hint">Keys: j / k = next / prev series, b / n = guess break / no break (blind mode)</span>
+</header>
+<div class="wrap">
+<aside id="side">
+  <div class="controls">
+    <label>Show
+      <select id="fFilter">
+        <option value="all">All series</option>
+        <option value="brk">Break only</option>
+        <option value="nob">No break only</option>
+        <option value="hard">Hard: |AC1| &gt; 0.3 or kurtosis &gt; 3 (history)</option>
+      </select></label>
+    <label>Sort by
+      <select id="fSort">
+        <option value="rand">Random order</option>
+        <option value="miss">Model misses (break, low score after tau)</option>
+        <option value="fa">Model false alarms (no break, high score)</option>
+        <option value="hit">Model easiest hits</option>
+        <option value="var">|log variance ratio| (after/before)</option>
+        <option value="dvar">|log roughness ratio|</option>
+        <option value="ac1">|change in lag-1 AC|</option>
+        <option value="kurt">|change in kurtosis|</option>
+        <option value="mean">|mean shift|</option>
+        <option value="hac1">History lag-1 AC</option>
+        <option value="hkurt">History kurtosis</option>
+      </select></label>
+    <label>Rolling window (trailing, points): <span id="wVal">100</span>
+      <input id="fWin" type="range" min="10" max="500" step="10" value="100"></label>
+    <label style="grid-template-columns:auto 1fr;align-items:center;gap:6px">
+      <input id="fBlind" type="checkbox"> Blind mode (hide the answer until you guess)</label>
+    <div class="hint" id="tally"></div>
+  </div>
+  <div class="list" id="list"></div>
+</aside>
+
+<main id="mainS">
+  <div class="card">
+    <div class="head">
+      <span class="big" id="hTitle"></span>
+      <span class="tag" id="hTag"></span>
+      <div class="stats" id="hStats"></div>
+    </div>
+    <div class="guess hidden" id="guessBox">
+      <button class="btn" id="gB">Break (b)</button>
+      <button class="btn" id="gN">No break (n)</button>
+      <span class="hint">Drag on a chart to zoom, double-click to reset. Guess first, then the red line and stats appear.</span>
+    </div>
+  </div>
+  <div class="card"><h3>Signal</h3>
+    <p class="sub">Shaded = history (z-scored to mean 0, sd 1). Grey dashed = online start. <span style="color:var(--tau)">Red</span> = true break.</p>
+    <div id="pSig"></div></div>
+  <div class="card"><h3>CUSUM of energy</h3>
+    <p class="sub">Running sum of (x² − 1) and of (Δx²/2 − 1). History is z-scored, so in a stable series these wander around flat; a variance or roughness break bends the slope. Slope up = louder / rougher than history.</p>
+    <div class="legend"><span><i class="sw" style="background:var(--series-1)"></i>level energy x²</span><span><i class="sw" style="background:var(--series-2)"></i>roughness Δx²/2</span></div>
+    <div id="pCus"></div></div>
+  <div class="card"><h3>Rolling std and roughness</h3>
+    <p class="sub">Trailing window. Roughness = std(Δx)/√2, which equals std for white noise; when they separate, the dependence changed.</p>
+    <div class="legend"><span><i class="sw" style="background:var(--series-1)"></i>std(x)</span><span><i class="sw" style="background:var(--series-2)"></i>std(Δx)/√2</span></div>
+    <div id="pStd"></div></div>
+  <div class="card"><h3>Rolling lag-1 autocorrelation</h3><div id="pAc"></div></div>
+  <div class="card"><h3>Rolling tail rate: share of |x| &gt; 3 (history sd units)</h3>
+    <p class="sub">Gaussian expectation ≈ 0.0027.</p><div id="pTail"></div></div>
+  <div class="card" id="cOof"><h3>Model score (out-of-fold LightGBM, the trees member of the 0.6483 blend)</h3>
+    <p class="sub">Percentile of this series' score among all 10,000 series at the same online step (that ranking is what TS-AUC measures). 1 = most break-like.</p>
+    <div id="pOof"></div></div>
+  <div class="grid2" id="baBox">
+    <div class="card"><h3>Distribution ±200 points around the break</h3>
+      <div class="legend"><span><i class="sw" style="background:var(--series-1)"></i>before</span><span><i class="sw" style="background:var(--series-2)"></i>after</span></div>
+      <div id="pHist"></div></div>
+    <div class="card"><h3>Autocorrelation function, before vs after</h3>
+      <div class="legend"><span><i class="sw" style="background:var(--series-1)"></i>before</span><span><i class="sw" style="background:var(--series-2)"></i>after</span></div>
+      <div id="pAcf"></div></div>
+  </div>
+</main>
+
+<main id="mainE" class="hidden">
+  <div class="card">
+    <h3>Event study: every break series aligned on its break (offset 0)</h3>
+    <p class="sub" id="evSub"></p>
+    <label class="hint">Smoothing (centred moving average, points): <span id="sVal">15</span>
+      <input id="fSm" type="range" min="1" max="61" step="2" value="15" style="max-width:300px"></label>
+    <div class="legend" style="margin-top:6px"><span><i class="sw" style="background:var(--series-2)"></i>break series, aligned on tau</span><span><i class="sw" style="background:var(--series-1)"></i>no-break series, aligned on a random pseudo-tau</span></div>
+  </div>
+  <div class="grid3" id="evGrid"></div>
+  <div class="card" style="margin-top:10px">
+    <h3>Per-series change across the break: after minus before</h3>
+    <p class="sub" id="dSub"></p>
+    <div class="legend"><span><i class="sw" style="background:var(--series-2)"></i>break series, around tau</span><span><i class="sw" style="background:var(--series-1)"></i>no-break series, around a pseudo-tau (placebo)</span></div>
+  </div>
+  <div class="grid3" id="dGrid"></div>
+</main>
+</div>
+<div class="tip" id="tip"></div>
+
+<script>
+const M = window.VIZ_META;
+// ---------- float16 decode ----------
+const RAW = Uint8Array.from(atob(window.VIZ_BLOB), c => c.charCodeAt(0));
+const U16 = new Uint16Array(RAW.buffer);
+function h2f(h) {
+  const s = (h & 0x8000) ? -1 : 1, e = (h >> 10) & 0x1f, f = h & 0x3ff;
+  if (e === 0) return s * Math.pow(2, -14) * (f / 1024);
+  if (e === 31) return f ? NaN : s * Infinity;
+  return s * Math.pow(2, e - 15) * (1 + f / 1024);
+}
+const LUT = new Float32Array(65536); for (let i = 0; i < 65536; i++) LUT[i] = h2f(i);
+const getVals = s => { const v = new Float64Array(s.n); for (let i = 0; i < s.n; i++) v[i] = LUT[U16[s.off + i]]; return v; };
+
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const S = M.series;
+S.forEach(s => {
+  s.brk = s.tau >= 0;
+  s.hard = Math.abs(s.hac1) > 0.3 || s.hkurt > 3;
+  if (s.oof) {
+    const [st, p] = s.oof;
+    let post = [], all = [];
+    for (let i = 0; i < st.length; i++) { all.push(p[i]); if (s.brk && st[i] >= s.tau) post.push(p[i]); }
+    const mean = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : NaN;
+    s.mPost = mean(post); s.mAll = mean(all);
+  }
+});
+
+// ---------- state ----------
+let view = [], cur = 0, win = 100;
+let blind = false, guessed = {}, tally = { right: 0, n: 0 };
+const $ = id => document.getElementById(id);
+
+function buildList() {
+  const f = $("fFilter").value, so = $("fSort").value;
+  view = S.filter(s => f === "all" || (f === "brk" && s.brk) || (f === "nob" && !s.brk) || (f === "hard" && s.hard));
+  const r = s => s.ratio || {};
+  const key = {
+    rand: s => 0,
+    miss: s => s.brk && s.mPost != null ? s.mPost : 9,
+    fa: s => !s.brk && s.mAll != null ? -s.mAll : 9,
+    hit: s => s.brk && s.mPost != null ? -s.mPost : 9,
+    var: s => -Math.abs(r(s).var ?? 0), dvar: s => -Math.abs(r(s).dvar ?? 0),
+    ac1: s => -Math.abs(r(s).ac1 ?? 0), kurt: s => -Math.abs(r(s).kurt ?? 0),
+    mean: s => -Math.abs(r(s).mean ?? 0),
+    hac1: s => -Math.abs(s.hac1), hkurt: s => -s.hkurt,
+  }[so];
+  if (blind && so !== "rand" && so !== "hac1" && so !== "hkurt") $("fSort").value = "rand";
+  view = view.slice().sort((a, b) => key(a) - key(b));
+  const L = $("list"); L.innerHTML = "";
+  view.forEach((s, i) => {
+    const d = document.createElement("div");
+    d.className = "row" + (i === cur ? " sel" : "");
+    const showAns = !blind || guessed[s.id] != null;
+    const lab = showAns ? (s.brk ? `break @ ${s.tau}` : "no break") : "?";
+    d.innerHTML = `<span>id ${s.id} <span class="k">h=${s.h} on=${s.n - s.h}</span></span><span class="tag">${lab}</span>`;
+    d.onclick = () => { cur = i; render(); };
+    L.appendChild(d);
+  });
+}
+
+// ---------- rolling stats (trailing, causal like the real-time task) ----------
+function rolling(x, w) {
+  const n = x.length, c1 = new Float64Array(n + 1), c2 = new Float64Array(n + 1),
+        cd = new Float64Array(n + 1), cl = new Float64Array(n + 1), ct = new Float64Array(n + 1);
+  for (let i = 0; i < n; i++) {
+    const d = i ? x[i] - x[i - 1] : 0, l = i ? x[i] * x[i - 1] : 0;
+    c1[i + 1] = c1[i] + x[i]; c2[i + 1] = c2[i] + x[i] * x[i];
+    cd[i + 1] = cd[i] + d * d; cl[i + 1] = cl[i] + l; ct[i + 1] = ct[i] + (Math.abs(x[i]) > 3 ? 1 : 0);
+  }
+  const sd = new Array(n), rs = new Array(n), ac = new Array(n), tl = new Array(n);
+  for (let i = 0; i < n; i++) {
+    if (i + 1 < w) { sd[i] = rs[i] = ac[i] = tl[i] = null; continue; }
+    const a = i + 1 - w, m = (c1[i + 1] - c1[a]) / w, v = (c2[i + 1] - c2[a]) / w - m * m;
+    const a2 = Math.max(a + 1, 1), k = i + 1 - a2;
+    sd[i] = Math.sqrt(Math.max(v, 0));
+    rs[i] = Math.sqrt((cd[i + 1] - cd[a2]) / k / 2);
+    ac[i] = v > 1e-12 ? ((cl[i + 1] - cl[a2]) / k - m * m) / v : null;
+    tl[i] = (ct[i + 1] - ct[a]) / w;
+  }
+  return { sd, rs, ac, tl };
+}
+function cusum(x) {
+  const a = new Array(x.length), b = new Array(x.length); let s1 = 0, s2 = 0;
+  for (let i = 0; i < x.length; i++) {
+    s1 += x[i] * x[i] - 1; a[i] = s1;
+    if (i) s2 += (x[i] - x[i - 1]) ** 2 / 2 - 1; b[i] = s2;
+  }
+  return [a, b];
+}
+
+// ---------- plotting ----------
+const plots = {};
+let curSeries = null;
+function width(el) { return Math.max(260, el.clientWidth); }
+function markers(u) {
+  const s = curSeries; if (!s) return;
+  const ctx = u.ctx, { top, height, left, width: w } = u.bbox;
+  ctx.save();
+  const xh = u.valToPos(s.h - 0.5, "x", true);
+  ctx.fillStyle = css("--shade");
+  ctx.fillRect(left, top, Math.max(0, Math.min(xh, left + w) - left), height);
+  const vline = (x, col, dash) => {
+    if (x < left || x > left + w) return;
+    ctx.strokeStyle = col; ctx.lineWidth = 1.5 * devicePixelRatio; ctx.setLineDash(dash);
+    ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, top + height); ctx.stroke();
+  };
+  vline(xh, css("--online"), [4 * devicePixelRatio, 4 * devicePixelRatio]);
+  if (s.brk && (!blind || guessed[s.id] != null)) vline(u.valToPos(s.h + s.tau, "x", true), css("--tau"), []);
+  ctx.restore();
+}
+const tip = $("tip");
+function tipPlugin(fmt) {
+  return { hooks: { setCursor: u => {
+    const i = u.cursor.idx;
+    if (i == null || u.cursor.left < 0) { tip.style.display = "none"; return; }
+    const html = fmt(u, i); if (!html) { tip.style.display = "none"; return; }
+    const r = u.over.getBoundingClientRect();
+    tip.innerHTML = html; tip.style.display = "block";
+    const x = r.left + u.cursor.left + 14, y = r.top + u.cursor.top + 14;
+    tip.style.left = Math.min(x, innerWidth - tip.offsetWidth - 8) + "px"; tip.style.top = y + "px";
+  } } };
+}
+const f3 = v => v == null || isNaN(v) ? "–" : (+v).toFixed(3);
+const sync = uPlot.sync("sig");
+let syncing = false;
+function axes(ylab) {
+  const ax = { stroke: css("--text-muted"), grid: { stroke: css("--grid"), width: 1 }, ticks: { show: false }, font: "11px system-ui" };
+  return [ax, { ...ax, size: 50, label: ylab, labelSize: 14, labelFont: "11px system-ui" }];
+}
+function linePlot(id, xs, ys, cols, names, h, opts = {}) {
+  const el = $(id);
+  if (plots[id]) plots[id].destroy();
+  const u = new uPlot({
+    width: width(el), height: h,
+    cursor: { sync: { key: sync.key, setSeries: false }, drag: { x: true, y: false }, points: { size: 6 } },
+    scales: { x: { time: false }, y: opts.y || {} },
+    axes: axes(opts.ylab || ""),
+    legend: { show: false },
+    series: [{ label: "t" }, ...ys.map((_, k) => ({ label: names[k], stroke: cols[k], width: opts.w || 1.25, points: { show: false }, paths: opts.paths }))],
+    hooks: {
+      draw: [markers],
+      setScale: [(u, key) => {
+        if (key !== "x" || syncing) return;
+        syncing = true;
+        for (const k of ["pSig", "pCus", "pStd", "pAc", "pTail", "pOof"])
+          if (plots[k] && plots[k] !== u) plots[k].setScale("x", { min: u.scales.x.min, max: u.scales.x.max });
+        syncing = false;
+      }],
+    },
+    plugins: [tipPlugin((u, i) => {
+      const s = curSeries, t = u.data[0][i];
+      const seg = t < s.h ? `history ${t}` : `online step ${t - s.h}`;
+      return `<b>${seg}</b><br>` + names.map((n, k) => `${n}: ${f3(u.data[k + 1][i])}`).join("<br>");
+    })],
+  }, [xs, ...ys], el);
+  plots[id] = u;
+}
+
+function render() {
+  if (!view.length) return;
+  cur = Math.max(0, Math.min(cur, view.length - 1));
+  const s = view[cur]; curSeries = s;
+  [...$("list").children].forEach((d, i) => d.classList.toggle("sel", i === cur));
+  $("list").children[cur]?.scrollIntoView({ block: "nearest" });
+  const showAns = !blind || guessed[s.id] != null;
+  $("guessBox").classList.toggle("hidden", !blind || guessed[s.id] != null);
+  $("hTitle").textContent = `Series id ${s.id}`;
+  $("hTag").textContent = showAns ? (s.brk ? `break at online step ${s.tau}` : "no break") : "answer hidden";
+  let st = `<span>history <b>${s.h}</b></span><span>online <b>${s.n - s.h}</b></span>
+    <span>history lag-1 AC <b>${s.hac1}</b></span><span>history excess kurtosis <b>${s.hkurt}</b></span>`;
+  if (showAns && s.ratio) {
+    const r = s.ratio;
+    st += `<span>log var ratio <b>${r.var}</b></span><span>log roughness ratio <b>${r.dvar}</b></span>
+      <span>Δ lag-1 AC <b>${r.ac1}</b></span><span>Δ kurtosis <b>${r.kurt}</b></span><span>mean shift <b>${r.mean}</b></span>`;
+  }
+  if (showAns && s.oof) st += `<span>model mean pct ${s.brk ? "after break" : "overall"} <b>${f3(s.brk ? s.mPost : s.mAll)}</b></span>`;
+  $("hStats").innerHTML = st;
+
+  const x = getVals(s), xs = Array.from({ length: s.n }, (_, i) => i);
+  const c1 = css("--series-1"), c2 = css("--series-2");
+  linePlot("pSig", xs, [Array.from(x)], [c1], ["x"], 240, { w: 1 });
+  const [ca, cb] = cusum(x);
+  linePlot("pCus", xs, [ca, cb], [c1, c2], ["CUSUM x²−1", "CUSUM Δx²/2−1"], 170);
+  const R = rolling(x, win);
+  linePlot("pStd", xs, [R.sd, R.rs], [c1, c2], ["std(x)", "std(Δx)/√2"], 160);
+  linePlot("pAc", xs, [R.ac], [c1], ["lag-1 AC"], 130, { y: { range: [-1, 1] } });
+  linePlot("pTail", xs, [R.tl], [c1], ["tail rate"], 120);
+
+  const showOof = s.oof && showAns;
+  $("cOof").classList.toggle("hidden", !showOof);
+  if (showOof) {
+    const [stp, p] = s.oof;
+    const ox = xs, oy = new Array(s.n).fill(null);
+    stp.forEach((t, i) => { oy[s.h + t] = p[i]; });
+    // carry forward between scored steps (scores exist every 3rd step)
+    let last = null; for (let i = s.h; i < s.n; i++) { if (oy[i] != null) last = oy[i]; else oy[i] = last; }
+    linePlot("pOof", ox, [oy], [c1], ["percentile"], 130, { y: { range: [0, 1] } });
+  } else if (plots.pOof) { plots.pOof.destroy(); delete plots.pOof; }
+
+  const showBA = s.brk && showAns;
+  $("baBox").classList.toggle("hidden", !showBA);
+  if (showBA) beforeAfter(x, s.h + s.tau);
+}
+
+function beforeAfter(x, b) {
+  const pre = x.slice(Math.max(0, b - 200), b), post = x.slice(b, b + 200);
+  const lo = -5, hi = 5, nb = 40, step = (hi - lo) / nb;
+  const hist = a => { const h = new Array(nb).fill(0); for (const v of a) { const k = Math.floor((Math.max(lo, Math.min(hi - 1e-9, v)) - lo) / step); h[k]++; } return h.map(c => c / a.length / step); };
+  const xs = Array.from({ length: nb }, (_, i) => lo + i * step);
+  const c1 = css("--series-1"), c2 = css("--series-2");
+  const small = (id, X, Y, names, ylab, extra = {}) => {
+    const el = $(id); if (plots[id]) plots[id].destroy();
+    plots[id] = new uPlot({
+      width: width(el), height: 190, scales: { x: { time: false }, y: extra.y || {} }, axes: axes(ylab), legend: { show: false },
+      cursor: { drag: { x: false, y: false } },
+      series: [{}, ...Y.map((_, k) => ({ label: names[k], stroke: [c1, c2][k], width: 2, paths: extra.paths, points: { show: !!extra.pts, size: 6, fill: [c1, c2][k] } }))],
+      plugins: [tipPlugin((u, i) => `<b>${extra.xl}${f3(u.data[0][i])}</b><br>` + names.map((n, k) => `${n}: ${f3(u.data[k + 1][i])}`).join("<br>"))],
+    }, [X, ...Y], el);
+  };
+  small("pHist", xs, [hist(pre), hist(post)], ["before", "after"], "density", { paths: uPlot.paths.stepped({ align: 1 }), xl: "x ≥ " });
+  const acf = a => { const m = a.reduce((p, q) => p + q, 0) / a.length; let v = 0; for (const q of a) v += (q - m) ** 2;
+    return Array.from({ length: 20 }, (_, L) => { let c = 0; for (let i = L + 1; i < a.length; i++) c += (a[i] - m) * (a[i - L - 1] - m); return c / v; }); };
+  small("pAcf", Array.from({ length: 20 }, (_, i) => i + 1), [acf(pre), acf(post)], ["before", "after"], "ACF", { pts: true, xl: "lag " });
+}
+
+// ---------- event study ----------
+function smooth(a, k) {
+  if (k <= 1) return a; const h = (k - 1) / 2, out = new Array(a.length);
+  for (let i = 0; i < a.length; i++) { let s = 0, c = 0; for (let j = Math.max(0, i - h); j <= Math.min(a.length - 1, i + h); j++) { s += a[j]; c++; } out[i] = s / c; }
+  return out;
+}
+function renderEvent() {
+  const E = M.event, k = +$("fSm").value;
+  $("evSub").textContent = `${E.n_brk.toLocaleString()} break series vs ${E.n_nobrk.toLocaleString()} no-break series, per-point averages from offset ${E.lo} to ${E.hi}. ` +
+    `Offsets before the break mix online points and the end of history. If a curve only moves after 0, that statistic carries signal on average; if the orange and blue lines differ before 0, the alignment itself is biased.`;
+  const xs = Array.from({ length: E.hi - E.lo }, (_, i) => E.lo + i);
+  const defs = [
+    ["x2", "Mean x², clipped at |x| = 5 (level energy)", "Average variance in history units (history = 1). Clipping stops a few exploding series dominating."],
+    ["x2med", "Median x²", "Fully robust version; a stable Gaussian sits near 0.45."],
+    ["d2", "Mean Δx²/2, clipped (roughness)", "Equals variance for white noise; tracks fast-scale variance."],
+    ["d2med", "Median Δx²/2", "Robust roughness."],
+    ["lag", "Mean x·x₋₁, clipped (lag-1 covariance)", "Dependence at lag 1. Flat on average because increases and decreases cancel: see the per-series distributions below."],
+    ["tail", "Share of |x| > 3", "Tail events; Gaussian ≈ 0.0027."],
+    ["absx", "Mean |x|, clipped at 5", "Robust scale; Gaussian with sd 1 ≈ 0.80."],
+  ];
+  const G = $("evGrid"); G.innerHTML = "";
+  const c1 = css("--series-1"), c2 = css("--series-2");
+  defs.forEach(([key, title, sub]) => {
+    const card = document.createElement("div"); card.className = "card";
+    card.innerHTML = `<h3>${title}</h3><p class="sub">${sub}</p><div></div>`;
+    G.appendChild(card);
+    const el = card.lastChild;
+    new uPlot({
+      width: width(el), height: 220, scales: { x: { time: false } }, axes: axes(""), legend: { show: false },
+      cursor: { drag: { x: true, y: false } },
+      series: [{}, { label: "no break", stroke: c1, width: 2 }, { label: "break", stroke: c2, width: 2 }],
+      hooks: { draw: [u => { const x0 = u.valToPos(0, "x", true), c = u.ctx; c.save(); c.strokeStyle = css("--tau"); c.lineWidth = devicePixelRatio;
+        c.beginPath(); c.moveTo(x0, u.bbox.top); c.lineTo(x0, u.bbox.top + u.bbox.height); c.stroke(); c.restore(); }] },
+      plugins: [tipPlugin((u, i) => `<b>offset ${u.data[0][i]}</b><br>break: ${f3(u.data[2][i])}<br>no break: ${f3(u.data[1][i])}<br><span style="color:var(--text-muted)">n = ${E.brk.count[i]}</span>`)],
+    }, [xs, smooth(E.nobrk[key], k), smooth(E.brk[key], k)], el);
+  });
+  renderDists();
+}
+function renderDists() {
+  const D = M.dists; if (!D) return;
+  $("dSub").textContent = `${M.dist_n[0].toLocaleString()} break vs ${M.dist_n[1].toLocaleString()} no-break series, ${M.ratio_w} points either side (fewer if the series ends sooner). ` +
+    `AUC |change| = how well the size of the change separates break from placebo, either direction (0.5 = useless). Signed AUC near 0.5 with |change| AUC above it means the break moves the statistic both ways. ` +
+    `For scale: HANDOFF section 3 puts the best single statistic, with the break position known, around 0.60.`;
+  const defs = [["var", "log variance ratio"], ["dvar", "log roughness ratio, var(Δx)"], ["ac1", "change in lag-1 autocorrelation"],
+                ["kurt", "change in excess kurtosis"], ["mean", "mean shift (history sd units)"]];
+  const G = $("dGrid"); G.innerHTML = "";
+  const c1 = css("--series-1"), c2 = css("--series-2");
+  defs.forEach(([k, title]) => {
+    const d = D[k], card = document.createElement("div"); card.className = "card";
+    card.innerHTML = `<h3>${title}</h3><p class="sub">AUC |change| <b style="color:var(--text-primary)">${d.auc_abs.toFixed(3)}</b> · signed AUC ${d.auc_signed.toFixed(3)} · share increasing: break ${(100 * d.up_brk).toFixed(0)}%, placebo ${(100 * d.up_nobrk).toFixed(0)}%</p><div></div>`;
+    G.appendChild(card);
+    const el = card.lastChild;
+    new uPlot({
+      width: width(el), height: 200, scales: { x: { time: false } }, axes: axes("share"), legend: { show: false },
+      cursor: { drag: { x: false, y: false } },
+      series: [{}, { label: "placebo", stroke: c1, width: 2, paths: uPlot.paths.stepped({ align: 1 }) },
+                   { label: "break", stroke: c2, width: 2, paths: uPlot.paths.stepped({ align: 1 }) }],
+      hooks: { draw: [u => { const x0 = u.valToPos(0, "x", true), c = u.ctx; c.save(); c.strokeStyle = css("--text-muted"); c.setLineDash([3 * devicePixelRatio, 3 * devicePixelRatio]);
+        c.beginPath(); c.moveTo(x0, u.bbox.top); c.lineTo(x0, u.bbox.top + u.bbox.height); c.stroke(); c.restore(); }] },
+      plugins: [tipPlugin((u, i) => `<b>${title} ≥ ${f3(u.data[0][i])}</b><br>break: ${(100 * u.data[2][i]).toFixed(1)}%<br>placebo: ${(100 * u.data[1][i]).toFixed(1)}%`)],
+    }, [d.x, d.nobrk, d.brk], el);
+  });
+}
+
+// ---------- wiring ----------
+function guess(isBrk) {
+  const s = view[cur]; if (!blind || guessed[s.id] != null) return;
+  guessed[s.id] = isBrk; tally.n++; if (isBrk === s.brk) tally.right++;
+  $("tally").textContent = `Blind score: ${tally.right} / ${tally.n} correct (${(100 * tally.right / tally.n).toFixed(0)}%). Chance = 50%.`;
+  buildList(); render();
+}
+$("gB").onclick = () => guess(true); $("gN").onclick = () => guess(false);
+$("fFilter").onchange = $("fSort").onchange = () => { cur = 0; buildList(); render(); };
+$("fWin").oninput = e => { win = +e.target.value; $("wVal").textContent = win; render(); };
+$("fBlind").onchange = e => { blind = e.target.checked; cur = 0; buildList(); render(); };
+$("fSm").oninput = e => { $("sVal").textContent = e.target.value; renderEvent(); };
+$("tabS").onclick = () => { $("tabS").classList.add("on"); $("tabE").classList.remove("on"); $("mainS").classList.remove("hidden"); $("mainE").classList.add("hidden"); $("side").classList.remove("hidden"); render(); };
+$("tabE").onclick = () => { $("tabE").classList.add("on"); $("tabS").classList.remove("on"); $("mainE").classList.remove("hidden"); $("mainS").classList.add("hidden"); $("side").classList.add("hidden"); renderEvent(); };
+document.addEventListener("keydown", e => {
+  if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT" && e.target.type !== "checkbox") return;
+  if (e.key === "j") { cur++; render(); } else if (e.key === "k") { cur--; render(); }
+  else if (e.key === "b") guess(true); else if (e.key === "n") guess(false);
+});
+document.addEventListener("mouseleave", () => tip.style.display = "none");
+let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => $("mainE").classList.contains("hidden") ? render() : renderEvent(), 150); });
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => $("mainE").classList.contains("hidden") ? render() : renderEvent());
+if (!M.has_oof) $("cOof").classList.add("hidden");
+buildList(); render();
+</script>
+</body>
+</html>

@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Structural Break Strategy Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(', '\\)']], displayMath: [['$$', '$$']] },
+  svg: { fontCache: 'global' },
+  options: { skipHtmlTags: ['script', 'style', 'textarea', 'code'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" async></script>
+<style>
+/* Print-first version of approach-ledger.html (A4). Source for Strategy_Ledger_2026-10-16.pdf.
+   Regenerate with headless Chrome: see the comment at the end of this file. */
+:root {
+  --paper: #ffffff;
+  --sheet: #ffffff;
+  --ink: #1b2328;
+  --muted: #56636c;
+  --rule: #d5dce0;
+  --accent: #1f5f8b;
+  --accent-soft: #e3eef6;
+  --ok: #2d7a46;   --ok-bg: #e2f2e7;
+  --no: #a2402f;   --no-bg: #f7e4df;
+  --mid: #5f666c;  --mid-bg: #eceef0;
+  --wait: #8a6410; --wait-bg: #f8eed3;
+  --math-bg: #f3f6f8;
+  --f-display: "Familjen Grotesk", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --f-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@page {
+  size: A4;
+  margin: 15mm 14mm 16mm 14mm;
+  @bottom-left { content: "Structural break strategy ledger \00B7  as of 2026-10-16"; font-family: "JetBrains Mono", Consolas, monospace; font-size: 7pt; color: #7a858c; }
+  @bottom-right { content: counter(page) " / " counter(pages); font-family: "JetBrains Mono", Consolas, monospace; font-size: 7pt; color: #7a858c; }
+}
+@page :first { @bottom-left { content: none; } @bottom-right { content: none; } }
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 10pt; line-height: 1.42; }
+.wrap { max-width: 182mm; margin: 0 auto; }
+@media screen { body { padding: 24px 16px 64px; background: #eef1f3; } .wrap { background: #fff; padding: 14mm; box-shadow: 0 1px 4px rgba(0,0,0,.12); } }
+
+.eyebrow { font-family: var(--f-mono); font-size: 7.5pt; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 { font-family: var(--f-display); font-weight: 700; font-size: 28pt; line-height: 1.05; margin: 6px 0 10px; }
+h2 { font-family: var(--f-display); font-weight: 700; font-size: 15pt; margin: 22px 0 4px; break-after: avoid; }
+h2 .num { color: var(--accent); margin-right: 6px; }
+h3 { font-family: var(--f-display); font-weight: 500; font-size: 11.5pt; margin: 0; line-height: 1.25; }
+h4 { font-family: var(--f-mono); font-weight: 600; font-size: 8pt; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin: 14px 0 2px; break-after: avoid; }
+p { margin: 0; }
+p + p { margin-top: 6px; }
+.lede { color: var(--muted); }
+code, .mono { font-family: var(--f-mono); font-size: .84em; }
+a { color: var(--accent); text-decoration: none; }
+.pb { break-before: page; }
+.avoid { break-inside: avoid; }
+
+/* Cover */
+.cover-head { border-bottom: 1.5px solid var(--ink); padding-bottom: 12px; }
+.keyfacts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 14px; }
+.keyfacts div { border-top: 2px solid var(--ink); padding-top: 5px; }
+.keyfacts b { display: block; font-family: var(--f-mono); font-size: 15pt; font-weight: 600; font-variant-numeric: tabular-nums; }
+.keyfacts span { font-size: 8pt; color: var(--muted); line-height: 1.3; display: block; }
+.bottomline { margin-top: 12px; display: grid; gap: 7px; }
+.bottomline div { padding-left: 10px; border-left: 2.5px solid var(--accent); }
+.bottomline b { font-family: var(--f-display); font-weight: 700; }
+
+/* Charts */
+.chart { margin-top: 8px; border: 1px solid var(--rule); border-radius: 4px; padding: 8px 8px 4px; break-inside: avoid; }
+.chart svg { display: block; width: 100%; height: auto; }
+.chart text { font-family: var(--f-mono); fill: var(--muted); font-size: 11px; }
+.chart .val { fill: var(--ink); font-weight: 600; }
+.chart .lab { fill: var(--ink); font-family: var(--f-body); font-size: 11.5px; }
+.chart .grid { stroke: var(--rule); stroke-width: 1; }
+.chart .zero { stroke: #9aa5ad; stroke-width: 1.2; }
+.chart .bar { stroke: var(--ink); stroke-width: 1.2; stroke-dasharray: 4 3; }
+.chart .line { stroke: var(--accent); stroke-width: 2.5; fill: none; }
+.chart .area { fill: var(--accent-soft); stroke: none; }
+.chart .dot { fill: #fff; stroke: var(--accent); stroke-width: 2; }
+.chart .dot.end { fill: var(--accent); }
+.chart .wy { stroke: var(--ok); stroke-width: 1.6; }
+.chart .wn { stroke: #7d868d; stroke-width: 1.6; }
+.chart .py { fill: var(--ok); stroke: #fff; stroke-width: 2; }
+.chart .pn { fill: #fff; stroke: #6a737a; stroke-width: 2; }
+.chart .band { fill: #f4f6f7; }
+.caption { font-size: 8.3pt; color: var(--muted); margin-top: 4px; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-family: var(--f-mono); font-size: 7.5pt; color: var(--muted); margin-top: 4px; align-items: center; }
+.chart .legend svg { display: inline-block; width: 12px; height: 12px; vertical-align: middle; margin-right: 4px; }
+.cover-chart svg { height: 64mm; }
+
+/* Tables */
+table { border-collapse: collapse; width: 100%; font-size: 8.3pt; line-height: 1.32; margin-top: 6px; }
+thead { display: table-header-group; }
+tr { break-inside: avoid; }
+th, td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--f-mono); font-size: 6.8pt; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 400; border-bottom: 1.2px solid var(--ink); }
+td.eff { font-family: var(--f-mono); font-size: 7.4pt; font-variant-numeric: tabular-nums; width: 27%; }
+td.name { width: 27%; font-weight: 600; }
+td.sec { font-family: var(--f-mono); font-size: 7.2pt; color: var(--muted); width: 4%; white-space: nowrap; }
+tr.grp td { font-family: var(--f-mono); font-size: 7pt; letter-spacing: .07em; text-transform: uppercase; color: var(--accent); background: #f4f7f9; border-bottom: 1px solid var(--rule); padding-top: 5px; }
+.t-ok th { border-bottom-color: var(--ok); }
+.t-no th { border-bottom-color: var(--no); }
+.t-wait th { border-bottom-color: var(--wait); }
+.tag { display: inline-block; font-family: var(--f-mono); font-size: 6.4pt; font-weight: 600; padding: 0 3px; border-radius: 2px; margin-right: 4px; vertical-align: 1px; }
+.tag.m { color: var(--accent); background: var(--accent-soft); }
+.tag.h { color: var(--wait); background: var(--wait-bg); }
+
+.pill { display: inline-block; font-family: var(--f-mono); font-size: 6.8pt; letter-spacing: .05em; text-transform: uppercase; padding: 1px 6px; border-radius: 3px; white-space: nowrap; }
+.pill.adopted { color: var(--ok); background: var(--ok-bg); }
+.pill.rejected { color: var(--no); background: var(--no-bg); }
+.pill.neutral { color: var(--mid); background: var(--mid-bg); }
+.pill.pending { color: var(--wait); background: var(--wait-bg); }
+
+/* Entries */
+.entry { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 3px; padding: 9px 12px 10px; margin-top: 8px; display: grid; gap: 6px; break-inside: avoid; }
+.entry[data-v="adopted"] { border-left-color: var(--ok); }
+.entry[data-v="rejected"] { border-left-color: var(--no); }
+.entry[data-v="neutral"] { border-left-color: var(--mid); }
+.entry[data-v="pending"] { border-left-color: var(--wait); }
+.entry-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.entry-head h3 { flex: 1 1 60%; min-width: 0; }
+.entry-head .id { font-family: var(--f-mono); font-size: 8pt; color: var(--muted); margin-right: 2px; }
+.effect { font-family: var(--f-mono); font-size: 7.6pt; color: var(--muted); font-variant-numeric: tabular-nums; flex-basis: 100%; }
+.label { font-family: var(--f-mono); font-size: 6.8pt; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: 1px; }
+.math { background: var(--math-bg); border-radius: 3px; padding: 7px 10px; font-size: 9.2pt; }
+.math p + p, .math p + div, .math div + p { margin-top: 4px; }
+.math mjx-container[display="true"] { margin: 5px 0 !important; }
+mjx-container svg { max-width: 100%; height: auto; }
+.why { font-size: 9pt; border-top: 1px dashed var(--rule); padding-top: 6px; }
+.why b { font-weight: 600; }
+.mini { width: 100%; font-size: 7.8pt; margin-top: 4px; }
+.mini td, .mini th { padding: 2px 5px; }
+.mini td.n { font-family: var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.lessons { display: grid; gap: 8px; margin-top: 8px; }
+.lessons div { padding-left: 10px; border-left: 2px solid var(--accent); break-inside: avoid; }
+.lessons b { font-family: var(--f-display); font-weight: 700; font-size: 10.5pt; }
+.lessons .ev { display: block; font-size: 8.6pt; color: var(--muted); margin-top: 2px; }
+.status { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+.status > div { border: 1px solid var(--rule); border-radius: 3px; padding: 8px 10px; break-inside: avoid; }
+.status ul, .plain { margin: 4px 0 0; padding-left: 16px; }
+.status li, .plain li { margin-top: 2px; }
+footer { margin-top: 18px; font-size: 8pt; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ============================== COVER ============================== -->
+<header class="cover-head">
+  <div class="eyebrow">ADIA Lab Structural Break Challenge · Real-Time Edition · status as of 2026-10-16</div>
+  <h1>Structural Break Strategy Ledger</h1>
+  <p class="lede">Every strategy tried so far: what worked, what did not, and why. All numbers are 5-fold cross-validated TS-AUC on the 10,000 training series unless an entry says otherwise. "Paired" means the per-fold difference against the model that was current at the time, as mean ± standard error and the number of folds that improved. Sources: <code>HANDOFF.md</code> sections 1–41 and the result files in <code>cv_out/</code> and <code>diagnostics/</code>.</p>
+  <div class="keyfacts">
+    <div><b>0.6483</b><span>best cross-validated blend (trees 0.5 / GRU pair 0.3 / SVM 0.2)</span></div>
+    <div><b>0.6155</b><span>starting point (LightGBM on 270 streaming features)</span></div>
+    <div><b>+0.0328</b><span>total gain over 10 adopted steps</span></div>
+    <div><b>13 / 33 / 9</b><span>strategies that worked / did not / are still open or never fully run</span></div>
+  </div>
+</header>
+
+<h2>The bottom line</h2>
+<div class="bottomline">
+  <div><p><b>What worked was new information, not new algorithms.</b> More real training data (re-cut augmentation, +0.009 for the trees), the volatility state at the end of the history (+0.007), and the surprise stream of a learned normal-behaviour model (+0.005) were the big steps. A Bayesian change-point posterior with a prior learned from real breaks gave the most consistent gain (+0.002, every fold).</p></div>
+  <div><p><b>What did not work, mostly, was re-measuring the same thing.</b> About fifteen new statistic families (distribution shape, kernel tests, ordinal patterns, entropy, long memory, embeddings, a window classifier) turned out to re-read variance and tails, which the trees already had. New ways of combining (stacking, ranking losses, bigger networks) lost or tied. Training data that did not match the real breaks (synthetic breaks, the 2025 edition) hurt.</p></div>
+  <div><p><b>Why the score is hard to move:</b> most remaining misses are breaks that leave the variance unchanged, where every family tried scores 0.50–0.52. On top of that, the variance of unbroken series wanders on its own about as much as a typical break changes it.</p></div>
+  <div><p><b>Where it stands:</b> the 0.6483 blend is built, verified and passes <code>crunch test</code>, but has not been submitted, so the CV-to-leaderboard offset is unknown. Two leads are open: multi-horizon heads for the normal-behaviour model (+0.0047 at the gate; built, awaiting its paired run) and frozen variance forecasts (a weak pass).</p></div>
+</div>
+
+<h2>How the best score moved</h2>
+<div class="chart cover-chart" role="img" aria-label="Line chart of best CV TS-AUC rising from 0.6155 to 0.6483 over ten adopted steps">
+<svg viewBox="0 0 720 310" xmlns="http://www.w3.org/2000/svg">
+  <line class="grid" x1="50" y1="230" x2="700" y2="230"/><text x="44" y="234" text-anchor="end">0.61</text>
+  <line class="grid" x1="50" y1="180" x2="700" y2="180"/><text x="44" y="184" text-anchor="end">0.62</text>
+  <line class="grid" x1="50" y1="130" x2="700" y2="130"/><text x="44" y="134" text-anchor="end">0.63</text>
+  <line class="grid" x1="50" y1="80" x2="700" y2="80"/><text x="44" y="84" text-anchor="end">0.64</text>
+  <line class="grid" x1="50" y1="30" x2="700" y2="30"/><text x="44" y="34" text-anchor="end">0.65</text>
+  <path class="area" d="M70,202.5 L130,158 L190,112 L250,107.5 L310,82 L370,73.5 L430,66.5 L490,61 L550,46 L610,43.5 L670,38.5 L670,230 L70,230 Z"/>
+  <path class="line" d="M70,202.5 L130,158 L190,112 L250,107.5 L310,82 L370,73.5 L430,66.5 L490,61 L550,46 L610,43.5 L670,38.5"/>
+  <g>
+    <circle class="dot" cx="70" cy="202.5" r="4"/><text class="val" x="70" y="192" text-anchor="middle">.6155</text>
+    <circle class="dot" cx="130" cy="158" r="4"/><text class="val" x="130" y="148" text-anchor="middle">.6244</text>
+    <circle class="dot" cx="190" cy="112" r="4"/><text class="val" x="190" y="102" text-anchor="middle">.6336</text>
+    <circle class="dot" cx="250" cy="107.5" r="4"/><text class="val" x="250" y="125" text-anchor="middle">.6345</text>
+    <circle class="dot" cx="310" cy="82" r="4"/><text class="val" x="310" y="72" text-anchor="middle">.6396</text>
+    <circle class="dot" cx="370" cy="73.5" r="4"/><text class="val" x="370" y="92" text-anchor="middle">.6413</text>
+    <circle class="dot" cx="430" cy="66.5" r="4"/><text class="val" x="430" y="56" text-anchor="middle">.6427</text>
+    <circle class="dot" cx="490" cy="61" r="4"/><text class="val" x="490" y="79" text-anchor="middle">.6438</text>
+    <circle class="dot" cx="550" cy="46" r="4"/><text class="val" x="550" y="36" text-anchor="middle">.6468</text>
+    <circle class="dot" cx="610" cy="43.5" r="4"/><text class="val" x="610" y="62" text-anchor="middle">.6473</text>
+    <circle class="dot end" cx="670" cy="38.5" r="5"/><text class="val" x="670" y="24" text-anchor="middle">.6483</text>
+  </g>
+  <g transform="translate(0,252)">
+    <text transform="translate(70,0) rotate(-35)" text-anchor="end">LightGBM</text>
+    <text transform="translate(130,0) rotate(-35)" text-anchor="end">+ GRU blend</text>
+    <text transform="translate(190,0) rotate(-35)" text-anchor="end">re-cut aug.</text>
+    <text transform="translate(250,0) rotate(-35)" text-anchor="end">+ evidence</text>
+    <text transform="translate(310,0) rotate(-35)" text-anchor="end">+ vol state</text>
+    <text transform="translate(370,0) rotate(-35)" text-anchor="end">+ dist tests</text>
+    <text transform="translate(430,0) rotate(-35)" text-anchor="end">+ SVM</text>
+    <text transform="translate(490,0) rotate(-35)" text-anchor="end">+ BOCPD</text>
+    <text transform="translate(550,0) rotate(-35)" text-anchor="end">+ NBM trees</text>
+    <text transform="translate(610,0) rotate(-35)" text-anchor="end">SVM + NBM</text>
+    <text transform="translate(670,0) rotate(-35)" text-anchor="end">GRU + NBM</text>
+  </g>
+</svg>
+</div>
+<p class="caption">Best cross-validated blend after each adopted change. Nothing adopted since 2026-10-15; every later idea failed or is still open. The frozen public leaderboard (50th place 0.6483, 1st 0.7168) is not on the same scale as these CV numbers: our CV-to-board offset has never been measured, and another team reported −0.016 to −0.020.</p>
+
+<!-- ============================== GROUND RULES ============================== -->
+<h2 class="pb">Ground rules: the task, the metric, the test</h2>
+<article class="entry" data-v="neutral">
+  <div class="entry-head"><h3>The task and the metric (TS-AUC)</h3><span class="pill neutral">Framework</span></div>
+  <div><p>Each series has a break-free history (1,000–5,000 points, z-scored) and then an online stretch of 10–1,000 points, read one point at a time. Half the series break somewhere in the online stretch. After every new point we output a score for "the break has already happened". At each online step the metric asks: across all series still running, do the broken ones score higher than the unbroken ones? It averages those per-step AUCs, giving most weight to steps where both kinds are common (steps 100–700 carry about 84% of the weight).</p></div>
+  <div class="math">
+  <p>At step \(t\), let \(P_t\) be the series with \(\tau \le t\) (positives) and \(N_t\) those without a break by \(t\), with scores \(s_{i,t}\):</p>
+  $$\mathrm{AUC}_t=\frac{1}{|P_t||N_t|}\sum_{i\in P_t}\sum_{j\in N_t}\Big(\mathbb 1[s_{i,t}>s_{j,t}]+\tfrac12\mathbb 1[s_{i,t}=s_{j,t}]\Big),\qquad \text{TS-AUC}=\frac{\sum_t |P_t||N_t|\,\mathrm{AUC}_t}{\sum_t |P_t||N_t|}.$$
+  <p>Training rows are weighted to match: at step \(t\) a positive row gets \(|N_t|/2\) and a negative \(|P_t|/2\), so each class's total weight at that step is proportional to the metric's weight.</p></div>
+  <div class="why"><b>Decision rule</b> used for every change, written before each run: per-fold paired difference \(d_f\) against the current best, with \(\bar d \ge +0.003\), \(\bar d > 2\,\mathrm{SE}\) where \(\mathrm{SE}=\mathrm{sd}(d)/\sqrt5\), and at least 4 of 5 folds positive. For the GRU it must hold on both seeds. Late in the project, blend members that cost nothing extra at inference were also accepted at about +0.001 when consistent (5/5). Fold noise is about ±0.006–0.008 per run, so unpaired comparisons mean little.</div>
+</article>
+
+<h4>Terms used below</h4>
+<table class="mini avoid">
+  <tr><td style="width:22%"><b>OOF</b></td><td>out-of-fold: each series scored by a model that never saw it in training.</td></tr>
+  <tr><td><b>Gate / oracle</b></td><td>a cheap screening script run before a full CV run. An oracle knows the break position (the most favourable setting).</td></tr>
+  <tr><td><b>Single-feature TS-AUC</b></td><td>TS-AUC of one feature used directly as the score. 0.5 = no signal.</td></tr>
+  <tr><td><b>Variance-unchanged slice</b></td><td>break series whose variance barely moved, plus no-break controls: the slice where the models are weakest.</td></tr>
+  <tr><td><b>Re-cut</b></td><td>a new training series made by moving a real series' history/online boundary (real values, exact labels).</td></tr>
+  <tr><td><b>BOCPD, NBM</b></td><td>Bayesian online change-point posterior; normal-behaviour model (a GRU pretrained without labels to forecast the next residual).</td></tr>
+  <tr><td><b>Members</b></td><td>the three models in the blend: XGBoost trees, a GRU (two seeds), a kernel SVM.</td></tr>
+  <tr><td><b><span class="tag m">M</span> / <span class="tag h">H</span></b></td><td>in the "why" column: <b>M</b> = the reason was measured directly; <b>H</b> = a hypothesis that fits the data but was not tested on its own.</td></tr>
+</table>
+
+<h2 class="pb">Every paired tree test at a glance</h2>
+<p class="lede">The trees are the one member every idea was tested on with the same instrument: a paired 5-fold <code>cv.py</code> run against the trees that were current at the time. Dots are the mean per-fold difference; whiskers span ±2 standard errors. A change passes when the dot is right of the dashed +0.003 line and the whisker clears zero.</p>
+<div class="chart" role="img" aria-label="Forest plot of paired tree differences for 20 strategies; five adopted strategies sit right of zero, the rest straddle zero">
+<svg viewBox="0 0 760 500" xmlns="http://www.w3.org/2000/svg">
+  <text x="270" y="22">paired Δ TS-AUC vs the trees current at the time (±2 SE)</text>
+  <text x="755" y="22" text-anchor="end">folds</text>
+  <line class="grid" x1="310" y1="34" x2="310" y2="470"/>
+  <line class="grid" x1="370" y1="34" x2="370" y2="470"/>
+  <line class="grid" x1="550" y1="34" x2="550" y2="470"/>
+  <line class="grid" x1="610" y1="34" x2="610" y2="470"/>
+  <line class="grid" x1="670" y1="34" x2="670" y2="470"/>
+  <line class="zero" x1="430" y1="34" x2="430" y2="470"/>
+  <line class="bar" x1="490" y1="34" x2="490" y2="470"/>
+  <text x="494" y="44" style="fill:#1b2328">+0.003 bar</text>
+  <g>
+    <!-- row y = 58 + 21 i ; x(v) = 270 + (v + 0.008) * 20000 -->
+    <text class="lab" x="258" y="62" text-anchor="end">Re-cut augmentation (×2)</text>
+    <line class="wy" x1="532" y1="58" x2="700" y2="58"/><circle class="py" cx="616" cy="58" r="5"/><text x="755" y="62" text-anchor="end">5/5</text>
+    <text class="lab" x="258" y="83" text-anchor="end">More re-cuts (×4 vs ×2)</text>
+    <line class="wn" x1="388" y1="79" x2="500" y2="79"/><circle class="pn" cx="444" cy="79" r="4"/><text x="755" y="83" text-anchor="end">4/5</text>
+    <text class="lab" x="258" y="104" text-anchor="end">Synthetic breaks (6 types)</text>
+    <line class="wn" x1="278" y1="100" x2="494" y2="100"/><circle class="pn" cx="386" cy="100" r="4"/><text x="755" y="104" text-anchor="end">2/5</text>
+    <text class="lab" x="258" y="125" text-anchor="end">Synthetic breaks, no dependence</text>
+    <line class="wn" x1="336" y1="121" x2="528" y2="121"/><circle class="pn" cx="432" cy="121" r="4"/><text x="755" y="125" text-anchor="end">2/5</text>
+    <text class="lab" x="258" y="146" text-anchor="end">Likelihood-ratio evidence</text>
+    <line class="wy" x1="406" y1="142" x2="574" y2="142"/><circle class="py" cx="490" cy="142" r="5"/><text x="755" y="146" text-anchor="end">3/5</text>
+    <text class="lab" x="258" y="167" text-anchor="end">2025-edition data</text>
+    <line class="wn" x1="270" y1="163" x2="416" y2="163"/><circle class="pn" cx="316" cy="163" r="4"/><text x="755" y="167" text-anchor="end">1/5</text>
+    <text class="lab" x="258" y="188" text-anchor="end">2025 data, source-balanced</text>
+    <line class="wn" x1="362" y1="184" x2="474" y2="184"/><circle class="pn" cx="418" cy="184" r="4"/><text x="755" y="188" text-anchor="end">2/5</text>
+    <text class="lab" x="258" y="209" text-anchor="end">Volatility state (end of history)</text>
+    <line class="wy" x1="518" y1="205" x2="622" y2="205"/><circle class="py" cx="570" cy="205" r="5"/><text x="755" y="209" text-anchor="end">5/5</text>
+    <text class="lab" x="258" y="230" text-anchor="end">Distribution tests, compact</text>
+    <line class="wn" x1="358" y1="226" x2="486" y2="226"/><circle class="pn" cx="422" cy="226" r="4"/><text x="755" y="230" text-anchor="end">2/5</text>
+    <text class="lab" x="258" y="251" text-anchor="end">Distribution tests, full (blend)</text>
+    <line class="wy" x1="404" y1="247" x2="500" y2="247"/><circle class="py" cx="452" cy="247" r="5"/><text x="755" y="251" text-anchor="end">3/5</text>
+    <text class="lab" x="258" y="272" text-anchor="end">MMD on residual pairs/triples</text>
+    <line class="wn" x1="362" y1="268" x2="482" y2="268"/><circle class="pn" cx="422" cy="268" r="4"/><text x="755" y="272" text-anchor="end">2/5</text>
+    <text class="lab" x="258" y="293" text-anchor="end">History-trimming re-cuts</text>
+    <line class="wn" x1="364" y1="289" x2="476" y2="289"/><circle class="pn" cx="420" cy="289" r="4"/><text x="755" y="293" text-anchor="end">2/5</text>
+    <text class="lab" x="258" y="314" text-anchor="end">BOCPD posterior</text>
+    <line class="wy" x1="456" y1="310" x2="480" y2="310"/><circle class="py" cx="468" cy="310" r="5"/><text x="755" y="314" text-anchor="end">5/5</text>
+    <text class="lab" x="258" y="335" text-anchor="end">Richer BOCPD (AR + tails)</text>
+    <line class="wn" x1="398" y1="331" x2="454" y2="331"/><circle class="pn" cx="426" cy="331" r="4"/><text x="755" y="335" text-anchor="end">2/5</text>
+    <text class="lab" x="258" y="356" text-anchor="end">Normal-behaviour model (NBM)</text>
+    <line class="wy" x1="472" y1="352" x2="584" y2="352"/><circle class="py" cx="528" cy="352" r="5"/><text x="755" y="356" text-anchor="end">5/5</text>
+    <text class="lab" x="258" y="377" text-anchor="end">Near-break training weights</text>
+    <line class="wn" x1="400" y1="373" x2="432" y2="373"/><circle class="pn" cx="416" cy="373" r="4"/><text x="755" y="377" text-anchor="end">1/5</text>
+    <text class="lab" x="258" y="398" text-anchor="end">Posterior shape (3 folds, stopped)</text>
+    <line class="wn" x1="408" y1="394" x2="432" y2="394"/><circle class="pn" cx="420" cy="394" r="4"/><text x="755" y="398" text-anchor="end">0/3</text>
+    <text class="lab" x="258" y="419" text-anchor="end">Embedding drift, learned stats</text>
+    <line class="wn" x1="384" y1="415" x2="480" y2="415"/><circle class="pn" cx="432" cy="415" r="4"/><text x="755" y="419" text-anchor="end">2/5</text>
+    <text class="lab" x="258" y="440" text-anchor="end">Embedding drift, CNN (4 folds)</text>
+    <line class="wn" x1="376" y1="436" x2="488" y2="436"/><circle class="pn" cx="432" cy="436" r="4"/><text x="755" y="440" text-anchor="end">2/4</text>
+    <text class="lab" x="258" y="461" text-anchor="end">Pair-classifier scan</text>
+    <line class="wn" x1="348" y1="457" x2="508" y2="457"/><circle class="pn" cx="428" cy="457" r="4"/><text x="755" y="461" text-anchor="end">2/5</text>
+  </g>
+  <g>
+    <text x="310" y="488" text-anchor="middle">−0.006</text>
+    <text x="370" y="488" text-anchor="middle">−0.003</text>
+    <text x="430" y="488" text-anchor="middle">0</text>
+    <text x="490" y="488" text-anchor="middle">+0.003</text>
+    <text x="550" y="488" text-anchor="middle">+0.006</text>
+    <text x="610" y="488" text-anchor="middle">+0.009</text>
+    <text x="670" y="488" text-anchor="middle">+0.012</text>
+  </g>
+</svg>
+<div class="legend">
+  <span><svg width="12" height="12"><circle cx="6" cy="6" r="4.5" fill="#2d7a46"/></svg>adopted</span>
+  <span><svg width="12" height="12"><circle cx="6" cy="6" r="4" fill="#fff" stroke="#6a737a" stroke-width="2"/></svg>not adopted</span>
+  <span>whiskers ±2 SE · clipped at the plot edge (re-cuts, 2025 data)</span>
+</div>
+</div>
+<p class="caption">Two adopted changes sit below the bar on purpose: the evidence features were adopted at the borderline (+0.0030, cheap to run), and the full distribution tests on their blend gain (+0.0017 ± 0.0008, 4/5). GRU, SVM and blend results are in the tables that follow.</p>
+
+<!-- ============================== SCOREBOARD ============================== -->
+<h2>Scoreboard A: what worked (adopted, in order)</h2>
+<table class="t-ok">
+  <thead><tr><th>§</th><th>Strategy</th><th>Measured effect</th><th>Why it worked</th></tr></thead>
+  <tbody>
+  <tr><td class="sec">1.1</td><td class="name">Streaming feature kernel: AR(10) whitening, running means, windows, scans</td><td class="eff">74 features 0.594 → 270 features 0.6155</td><td><span class="tag m">M</span>Breaks are mostly changes in variance, roughness, tails and dependence, not the mean. A scan over every start time adapts to the unknown break time (+2–5 points over "history vs everything so far" in simulation).</td></tr>
+  <tr><td class="sec">1.2</td><td class="name">Per-step tree classifier with metric-matched row weights</td><td class="eff">0.6155 (XGBoost on GPU: same score, 2× faster)</td><td><span class="tag m">M</span>Weights make each step count as it does in TS-AUC. Logistic regression gets within 0.022, so the features carry most of the signal.</td></tr>
+  <tr><td class="sec">2.1</td><td class="name">GRU fed the top-20 kernel features, blended by a plain logit average</td><td class="eff">GRU 0.6152; blend 0.6244 (+0.0086)</td><td><span class="tag m">M</span>The GRU makes different mistakes from the trees. A fixed logit average works one series at a time and scores the same as per-step standardisation.</td></tr>
+  <tr><td class="sec">3.1</td><td class="name">Boundary re-cut augmentation (2 variants per series)</td><td class="eff">trees +0.0093 ± 0.0021 (5/5); GRU +0.0058 / +0.0088 → blend 0.6336</td><td><span class="tag m">M</span>The models are data-limited (doubling the data is worth about +0.015). Re-cuts are real values with exact labels.</td></tr>
+  <tr><td class="sec">4.1</td><td class="name">Likelihood-ratio evidence: CUSUM, Shiryaev–Roberts, Bayesian model averaging</td><td class="eff">trees +0.0030 ± 0.0021 (3/5) → 0.6345</td><td><span class="tag m">M</span>Textbook optimal sequential tests. Borderline, kept because it costs O(1) per point. The blend gained only +0.0008: the GRU already covered most of it.</td></tr>
+  <tr><td class="sec">4.2</td><td class="name">Volatility state at the end of the history (frozen GARCH path to a slow level)</td><td class="eff">trees +0.0070 ± 0.0013 (5/5); GRU +0.0034 → blend 0.6396</td><td><span class="tag m">M</span>Unbroken series' online variance wanders by about 50%, but it correlates about 0.5 with the end of the history. A frozen forecast removes that part and cannot absorb a break.</td></tr>
+  <tr><td class="sec">4.3</td><td class="name">Whole-distribution tests (Anderson–Darling, KS, CvM, Wasserstein on residuals)</td><td class="eff">trees +0.0011 (3/5); blend +0.0017 ± 0.0008 (4/5) → 0.6413</td><td><span class="tag m">M</span>Mostly redundant with the tail scans (1.4–1.8% of gain), but the small blend gain was consistent across every step range. Adopted by the owner's decision.</td></tr>
+  <tr><td class="sec">4.4</td><td class="name">Kernel SVM (random Fourier features, closed form) as a third member</td><td class="eff">0.6328 alone; blend +0.0012 ± 0.0004 (4/5) → 0.6427</td><td><span class="tag m">M</span>Nearly as strong as the trees (best at steps 0–100), but it reads the same features (correlation 0.83), so it adds little.</td></tr>
+  <tr><td class="sec">5.1</td><td class="name">BOCPD: exact one-break posterior with an empirical-Bayes prior (trees and GRU)</td><td class="eff">trees +0.0019 ± 0.0003 (5/5, 6 SE); GRU +0.0038 / +0.0067 → blend 0.6438</td><td><span class="tag m">M</span>The prior on the post-break variance, fitted on real breaks, is worth +0.011 single-feature AUC over a vague prior. The posterior variance estimates rank high in importance.</td></tr>
+  <tr><td class="sec">6.1</td><td class="name">Normal-behaviour model (NBM) surprise stream into the BOCPD posterior (trees)</td><td class="eff">trees +0.0049 ± 0.0014 (5/5); blend +0.0032 ± 0.0006 (5/5) → 0.6468</td><td><span class="tag m">M</span>Adds signal where variance is unchanged (0.52 vs 0.50), which nothing else did. It does not forecast the history better than GARCH-t, so the gain comes from how its stream behaves after a break <span class="tag h">H</span>.</td></tr>
+  <tr><td class="sec">6.1</td><td class="name">NBM features as SVM inputs</td><td class="eff">SVM +0.0049 ± 0.0010 (5/5); blend +0.0005 ± 0.0002 (5/5) → 0.6473</td><td><span class="tag m">M</span>The SVM could not see this kind of information before. Free at inference.</td></tr>
+  <tr><td class="sec">6.1</td><td class="name">NBM channels in the GRU (owner's decision)</td><td class="eff">GRU +0.0056 / +0.0042; blend +0.0007 ± 0.0007 (3/5) → 0.6483</td><td><span class="tag m">M</span>Fails the blend rule: the trees already carry the NBM information. Adopted because it is cheap and positive. Within noise, so the cloud may not show it.</td></tr>
+  <tr><td class="sec">2.2</td><td class="name">Ship global blend weights 0.5 / 0.3 / 0.2</td><td class="eff">cross-fitted weights 0.6429 vs in-sample 0.6427</td><td><span class="tag m">M</span>The weight plateau is flat and honest (cross-fitted) weights score the same, so the blend numbers are not overfitted.</td></tr>
+  </tbody>
+</table>
+
+<h2 class="pb">Scoreboard B: what did not work</h2>
+<table class="t-no">
+  <thead><tr><th>§</th><th>Strategy</th><th>Measured effect</th><th>Why it did not work</th></tr></thead>
+  <tbody>
+  <tr class="grp"><td colspan="4">Better models of "normal" and more features</td></tr>
+  <tr><td class="sec">1.3</td><td class="name">Better next-point predictors: AR order 1–50, BIC, ridge, adaptive scale, Student-t, GBM correction</td><td class="eff">AR(10) 0.590 in the stacked bake-off; others flat (±0.005); GBM explains −0.05% of error</td><td><span class="tag m">M</span>AR(10) already holds all the linear structure. The adaptive scale tracks the break and erases the evidence.</td></tr>
+  <tr><td class="sec">1.1</td><td class="name">388 features (finer tails, extra windows)</td><td class="eff">−0.005 ± 0.0025 paired</td><td><span class="tag h">H</span>Redundant features split importance and add noise.</td></tr>
+  <tr><td class="sec">1.1</td><td class="name">Drop the 5 history-context features ("memorisation" theory)</td><td class="eff">−0.004 (2 folds)</td><td><span class="tag m">M</span>The theory was wrong: context tells the trees how to read each kind of series. Validation series are unseen.</td></tr>
+  <tr><td class="sec">1.1</td><td class="name">32 extra history descriptors (ACF, ARCH, spectra, quantiles ...)</td><td class="eff">0.6259 / 0.6093 vs 0.6270 / 0.6094 (folds 0 / 1)</td><td><span class="tag m">M</span>The 5 context features already carry what generic history statistics offer.</td></tr>
+  <tr class="grp"><td colspan="4">Models, objectives and combining</td></tr>
+  <tr><td class="sec">1.2</td><td class="name">Logistic regression as a blend member</td><td class="eff">0.5939 alone; blend +0.002 (below the bar)</td><td><span class="tag m">M</span>Linear on the same features; later replaced by the kernel SVM.</td></tr>
+  <tr><td class="sec">2.3</td><td class="name">Smoothing the score over time (EWMA, running max)</td><td class="eff">EWMA −0.0004 to −0.0078; running max 0.589</td><td><span class="tag m">M</span>The models already accumulate evidence; smoothing adds lag and a max locks in early false alarms.</td></tr>
+  <tr><td class="sec">2.4</td><td class="name">Stacking (LightGBM on member scores ± step, context)</td><td class="eff">−0.0013 to −0.0044 (0–1/5)</td><td><span class="tag m">M</span>With constant per-series inputs it memorises groups of series (each has about 170 near-identical rows).</td></tr>
+  <tr><td class="sec">2.4</td><td class="name">Separate blend weights per step range</td><td class="eff">−0.0000 ± 0.0002</td><td><span class="tag m">M</span>One global weighted sum is already the right combiner.</td></tr>
+  <tr><td class="sec">2.5</td><td class="name">Ranking objectives (XGBoost rank:pairwise; GRU pair loss)</td><td class="eff">trees −0.017 (fold 0); GRU −0.0011 ± 0.0014 (2/5)</td><td><span class="tag h">H</span>The pairwise signal is noisier than per-row labels; the trees declined after 100 rounds.</td></tr>
+  <tr><td class="sec">2.6</td><td class="name">Bigger, deeper or gated GRUs (8 settings × 2 seeds); early knob sweep (ramp, dropout, lr, ...)</td><td class="eff">all within noise (−0.0056 to +0.0036, seeds disagree)</td><td><span class="tag m">M</span>The GRU is data-limited, not capacity-limited.</td></tr>
+  <tr><td class="sec">2.6</td><td class="name">GRU top-20 chosen from all tree features; 4 GRU seeds instead of 2</td><td class="eff">−0.0008 ± 0.0021 (1/5); blend +0.0002 ± 0.0005</td><td><span class="tag m">M</span>The GRU already sees the volatility state through its own channels; the blend already averages GRU seed noise.</td></tr>
+  <tr><td class="sec">4.4</td><td class="name">SVM variants: BOCPD inputs, wider kernel, 16k features</td><td class="eff">−0.0001 ± 0.0010 (3/5); D 16k no gain</td><td><span class="tag m">M</span>Its volatility features already carried the variance information; the kernel approximation is not the bottleneck.</td></tr>
+  <tr class="grp"><td colspan="4">More training data</td></tr>
+  <tr><td class="sec">3.1</td><td class="name">More re-cuts (4 instead of 2)</td><td class="eff">+0.0007 ± 0.0014 vs ×2 (4/5)</td><td><span class="tag m">M</span>Variants reuse the same values; returns flatten after 2.</td></tr>
+  <tr><td class="sec">3.2</td><td class="name">History-trimming re-cuts</td><td class="eff">−0.0005 ± 0.0014 (2/5)</td><td><span class="tag m">M</span>Changes the reference statistics but the values are still the same.</td></tr>
+  <tr><td class="sec">3.3</td><td class="name">Synthetic breaks injected into real data (6 types, no mean shifts)</td><td class="eff">trees −0.0022 ± 0.0027 (2/5); no-dependence +0.0001; GRU −0.0033 ± 0.0046</td><td><span class="tag m">M</span>Wrong shape over time: dependence breaks show too early, others grow too slowly. Helps after step 600, hurts before 100.</td></tr>
+  <tr><td class="sec">3.4</td><td class="name">Real labelled data from the 2025 edition</td><td class="eff">−0.0057 ± 0.0025 (1/5); source-balanced −0.0006 ± 0.0014</td><td><span class="tag m">M</span>Different population (58% heavy-tailed, 29% breaks): the trees learn "2025-looking series rarely break". Balancing removes the damage but adds nothing.</td></tr>
+  <tr class="grp"><td colspan="4">New statistic families</td></tr>
+  <tr><td class="sec">4.5</td><td class="name">Per-series null calibration by replaying the history</td><td class="eff">vol stats ±0.001; tail/distribution stats −0.006 to −0.014 (single)</td><td><span class="tag m">M</span>The volatility state already does this better; shorter pseudo-histories bias tail statistics; 1–2 replays at the key steps are noise.</td></tr>
+  <tr><td class="sec">4.6</td><td class="name">Ordinal patterns, nonlinear volatility, matrix profile / FLUSS (oracle)</td><td class="eff">single 0.47–0.55; incremental negative or n.s.</td><td><span class="tag m">M</span>Ordinal patterns are blind to variance; nearest-neighbour arcs are random in noise-like data; matrix-profile novelty is variance in disguise (ρ 0.80–0.85).</td></tr>
+  <tr><td class="sec">4.7</td><td class="name">Streaming MMD on residual pairs and triples</td><td class="eff">trees −0.0004 ± 0.0015 (2/5)</td><td><span class="tag m">M</span>Rank correlation 0.81–0.91 with the Anderson–Darling features: the same information again.</td></tr>
+  <tr><td class="sec">5.2</td><td class="name">Richer BOCPD: AR post-break model + tail-frequency stream; per-type priors</td><td class="eff">trees −0.0002 ± 0.0007 (2/5)</td><td><span class="tag m">M</span>Ranks series almost identically to plain BOCPD (ρ 0.97); per-type priors no better than the global one.</td></tr>
+  <tr><td class="sec">5.3</td><td class="name">Shape of the break-time posterior (entropy, KL, spread)</td><td class="eff">trees −0.0001 / −0.0011 / −0.0003, stopped after 3 folds</td><td><span class="tag m">M</span>The trees cannot use the shape beyond the odds, time-since-break and variance estimates they already have.</td></tr>
+  <tr><td class="sec">7.1</td><td class="name">Entropy rises during the break; binned-entropy drop as a detector</td><td class="eff">rise AUC 0.49–0.51; drop detector ±0.0003</td><td><span class="tag m">M</span>Breaks are instant switches with no transition period; the entropy drop is the variance increase seen through fixed bins.</td></tr>
+  <tr><td class="sec">7.2</td><td class="name">Backcasting: predict the past from the present (linear, neural, pseudo-past)</td><td class="eff">backward −0.005 / −0.011 vs forward twin; pseudo-past = zeros control</td><td><span class="tag m">M</span>The series are time-reversible: the backward net predicts the past exactly as well as the forward one predicts the future, so backward evidence is the same, only later.</td></tr>
+  <tr><td class="sec">7.3</td><td class="name">Embedding drift (contrastive CNN, learned statistics, fixed statistics) and alarm thresholds</td><td class="eff">trees +0.0001 ± 0.0012 (2/5); CNN w128 +0.0001 (2/4)</td><td><span class="tag m">M</span>The gate's +0.004 was a false positive from a base without the kernel features. A cosine to a history anchor compresses statistics the trees already see. A hard threshold only discards information.</td></tr>
+  <tr><td class="sec">7.4</td><td class="name">Long-range structure: variance ratios, DFA, long memory (oracle)</td><td class="eff">incremental −0.0025 (L 100), −0.0025 (L 300), +0.0065 ± 0.0047 (L 600)</td><td><span class="tag m">M</span>The strongest statistic correlates 0.77–0.80 with lag-1 autocorrelation; longer scales score 0.50–0.55. The only hint needs 600 post-break points.</td></tr>
+  <tr><td class="sec">7.6</td><td class="name">Pair-classifier scan: "is this whole window post-break?" (2025-winner style)</td><td class="eff">trees −0.0001 ± 0.0020 (2/5)</td><td><span class="tag h">H</span>Its top column ranked 3rd by gain yet added nothing: the window-vs-history t-statistics re-package what the kernel's windows and scans already measure.</td></tr>
+  <tr><td class="sec">7.5</td><td class="name">Equation check R1 (nonlinear mean) and R2 (richer one-step density)</td><td class="eff">MSE +0.78% (worse); extended GARCH +0.0002 nats/pt</td><td><span class="tag m">M</span>AR(10) + GARCH-t is already the right equation for these histories.</td></tr>
+  <tr class="grp"><td colspan="4">Normal-behaviour model and foundation models</td></tr>
+  <tr><td class="sec">6.1</td><td class="name">NBM pretraining knobs past the plateau (width 128/192, batch 12, lr 8e-3, longer)</td><td class="eff">within seed noise of the chosen config</td><td><span class="tag m">M</span>Better optimisation, not width, mattered; once trained enough, settings are interchangeable. Longer training loses steps 700+ <span class="tag h">H</span>: it adapts to a break like GARCH.</td></tr>
+  <tr><td class="sec">6.2</td><td class="name">NBM designs: 2-layer, LSTM, TCN, 4-step-ahead target</td><td class="eff">gate −0.0002, −0.0081, −0.0018, −0.0035</td><td><span class="tag m">M</span>Depth, finite memory and a delayed target are no better; LSTM is clearly worse.</td></tr>
+  <tr><td class="sec">6.3</td><td class="name">NBM fine-tuned per series on its own history (test-time adaptation)</td><td class="eff">vs control −0.0007 / −0.0008 (strong shrink), −0.0046 / −0.0026 (weak)</td><td><span class="tag m">M</span>The adaptation overfits: held-out history NLL gets worse (1.3697 → 1.3704 / 1.3710).</td></tr>
+  <tr><td class="sec">6.4</td><td class="name">Chronos-2 (surprise stream; encoder drift)</td><td class="eff">0.589 single vs NBM 0.624; encoder gate not trustworthy</td><td><span class="tag m">M</span>Weaker than the NBM and about 55 h of CPU per 10,000 series against a 15 h budget.</td></tr>
+  <tr class="grp"><td colspan="4">Training weights</td></tr>
+  <tr><td class="sec">8.1</td><td class="name">Down-weight rows just after the break (near-break weights, k = 10)</td><td class="eff">−0.0007 ± 0.0004 (1/5)</td><td><span class="tag h">H</span>Those rows are near label noise, but the trees already handle them; removing weight loses some real signal.</td></tr>
+  <tr class="grp"><td colspan="4">Shortcut and leak checks (none found)</td></tr>
+  <tr><td class="sec">—</td><td class="name">Shared histories, number-format fingerprints, label signal in history statistics</td><td class="eff">0 shared windows; fingerprint AUC 0.49–0.50; history AUC ≈ 0.5</td><td><span class="tag m">M</span>No shortcut exists; the task has to be won on the signal. The online length is withheld by design.</td></tr>
+  </tbody>
+</table>
+
+<h2>Scoreboard C: still open, or never fully run</h2>
+<table class="t-wait">
+  <thead><tr><th>§</th><th>Strategy</th><th>Status</th><th>Notes</th></tr></thead>
+  <tbody>
+  <tr><td class="sec">6.2</td><td class="name">NBM with multi-horizon heads (<code>multi4</code>)</td><td class="eff">gate +0.0047 ± 0.0008 (3 seeds, every seed above every reference seed); built in <code>cv.py</code>/<code>gru_cv.py</code> 2026-10-16; paired CV not run</td><td>The strongest open lead, free at inference (extra heads are dropped after training). Expected about +0.001–0.0015 in the trees; adopt only if the blend gains ≥ +0.0005, 4/5, &gt; 2 SE. Mechanism <span class="tag h">H</span>: the 2–4-step heads make the network carry a slower scale state.</td></tr>
+  <tr><td class="sec">6.2</td><td class="name">NBM with 5 extra inputs (<code>xin</code>)</td><td class="eff">gate +0.0022 ± 0.0022</td><td>Inside 1 SE. Combinations only after single changes pass.</td></tr>
+  <tr><td class="sec">7.5</td><td class="name">Equation R3: frozen variance forecasts F2 (multi-scale per series) and F3l (learned across series)</td><td class="eff">single-feature +0.0037 ± 0.0049 (4/5), +0.0048 ± 0.0036 (4/5) over <code>vol_lr_full</code></td><td>Passes the written rule, but at only 0.75 and 1.3 SE, with almost no drop in no-break spread. Expected 0 to +0.002 in the trees. Build after <code>multi4</code>.</td></tr>
+  <tr><td class="sec">8.2</td><td class="name">Learned per-point density ratio ("learned CUSUM", <code>--lratio</code>)</td><td class="eff">built; build run: point AUC 0.51–0.54, best single 0.555; never CV-run</td><td>Closed by analogy, not run: it is the pair classifier's idea at point level, and the pair classifier gave nothing. Weak single features (BOCPD's is 0.605).</td></tr>
+  <tr><td class="sec">4.1</td><td class="name">Full evidence set (<code>--ev full</code>, 48 features)</td><td class="eff">only measured on the rejected synthetic-break base: +0.0041 ± 0.0021 (3/5) vs that base</td><td>Never re-run on the adopted base, so its value there is unknown.</td></tr>
+  <tr><td class="sec">3.1</td><td class="name">Re-cuts weighted toward early breaks (another team's "boundary augmentation")</td><td class="eff">not implemented</td><td>Would target the weakest slices (steps under 100, first 30 points after a break).</td></tr>
+  <tr><td class="sec">3.2</td><td class="name">Trim-only re-cuts (<code>--aug-trim-only</code>)</td><td class="eff">built, never run</td><td>Low expectation after trimming and ×4 re-cuts gave nothing.</td></tr>
+  <tr><td class="sec">2.6</td><td class="name">GRU auxiliary targets (time since break, break type)</td><td class="eff">built, smoke test only</td><td>No full result recorded.</td></tr>
+  <tr><td class="sec">—</td><td class="name">First platform submission</td><td class="eff">production blend built, verified, crunch-tested; not submitted</td><td>The owner's choice: not before about 0.67 CV. Until then the CV-to-leaderboard offset stays unknown.</td></tr>
+  </tbody>
+</table>
+
+<!-- ============================== LESSONS ============================== -->
+<h2 class="pb">Why things worked or failed: the cross-cutting lessons</h2>
+<div class="lessons">
+  <div><p><b>1. New information beat new algorithms.</b> The large steps added something the models did not know: more real series, the end-of-history volatility level, a learned forecaster's surprise. New model types and objectives added +0.001 at most, and several lost.</p><span class="ev">Re-cuts +0.0093, volatility state +0.0070, NBM +0.0049 (trees). SVM +0.0012 (blend); stacking −0.0013 to −0.0044; ranking −0.017 / −0.0011; bigger GRUs ≈ 0.</span></div>
+  <div><p><b>2. Most new statistic families re-measured variance and tails.</b> A new statistic can look different (low pairwise correlation) and still carry information the trees already combine from several features. Strength as a single feature did not predict a gain.</p><span class="ev">MMD ρ 0.81–0.91 with Anderson–Darling; matrix-profile novelty ρ 0.80–0.85 with the variance ratio; long-range VR(4) ρ 0.77–0.80 with lag-1 AC; richer BOCPD ρ 0.97 with plain BOCPD. The distribution tests had ρ 0.31–0.60 with any single feature, yet got 1.4–1.8% of gain. The pair classifier's <code>pc_smax</code> ranked 3rd by gain with a net change of −0.0001.</span></div>
+  <div><p><b>3. Most remaining misses look undetectable at this data size.</b> Where the variance did not change, every family tried scores close to chance. The bigger problem is the unbroken series: their variance wanders as much as a typical break changes it.</p><span class="ev">Variance-unchanged slice 0.50–0.52 for every family; breaks unchanged on all 5 simple axes (4.4%) score 0.487; positives 0–10 points after the break 0.528. No-break log-variance sd 0.41 over 100 points.</span></div>
+  <div><p><b>4. Frozen references keep the evidence; adaptive ones erase it.</b> Anything that updates its idea of "normal" with online data absorbs the break it should detect.</p><span class="ev">Adaptive error scale worse than fixed; frozen GARCH path +0.007; longer NBM training loses steps 700+ (H: adapts like GARCH); per-series NBM fine-tuning worsens held-out NLL; running max and EWMA of the score hurt.</span></div>
+  <div><p><b>5. The history's equation is already known, and the data is time-reversible.</b> Better forecasting of the history is not where the signal is.</p><span class="ev">Nonlinear mean: MSE +0.78% (worse); extended GARCH +0.0002 nats; NBM vs GARCH-t on the history +0.0001 nats; backward and forward nets reach the same NLL.</span></div>
+  <div><p><b>6. The models are short of data, but only data from the same distribution helps.</b></p><span class="ev">Learning curve +0.015 per doubling; real re-cuts +0.009. More of the same values (×4, trimming) ≈ 0; synthetic breaks −0.0022 (wrong time-shape); 2025 data −0.0057 (different population, wrong prior).</span></div>
+  <div><p><b>7. The blend absorbs a member's gain, unless that member gains a new kind of information.</b> Giving the GRU the trees' strongest new feature lifts the GRU, not the blend.</p><span class="ev">BOCPD GRU +0.0038 / +0.0067 alone → +0.0004 in the blend; NBM GRU +0.0056 / +0.0042 → +0.0007. Counter-examples: NBM trees kept about two thirds of their gain in the blend; the SVM gained +0.0049 from NBM inputs, which it could not see before.</span></div>
+  <div><p><b>8. Single-feature gains shrink several-fold inside the model: about 4–6× into the trees and 6–11× into the blend.</b> A screen can kill an idea, but it cannot size one.</p><span class="ev">BOCPD: +0.011 single → +0.0019 trees → +0.0010 blend. NBM: +0.019 single → +0.0049 trees → +0.0032 blend.</span></div>
+  <div><p><b>9. Cheap gates failed in three different ways, so the paired CV run is the only test.</b></p><span class="ev">False positive: embedding drift +0.004 in a weak gate base → +0.0001 in the trees. Blind: the Chronos-2 gate's positive control came out at −0.0044 for information worth +0.0049 in production. Go-then-fail: the pair-classifier gate said GO, then the trees showed −0.0001. A linear "blend + λ·x" gate saw about a tenth of a real gain (+0.0003 vs +0.0032).</span></div>
+  <div><p><b>10. Noise discipline mattered.</b> Rules written before each run, two or three seeds for neural nets, and full-size runs kept noise from being adopted.</p><span class="ev">Single GRU runs vary ±0.01; the NBM sweep's round-1 leaders fell by 0.006 on a second seed; the entropy hypothesis "passed" at 600 series and vanished at 10,000; equation F3g showed +0.05 at 300 series and +0.007 at 1,000.</span></div>
+</div>
+
+<h2>Where things stand (2026-10-16)</h2>
+<div class="status">
+  <div><h4 style="margin-top:0">Production</h4>
+    <ul>
+      <li><code>main.py</code> ships the 0.6483 blend: XGBoost trees (321 columns, 200 rounds), two GRU seeds (53 channels, 6 epochs), SVM (106 columns), weights 0.5 / 0.3 / 0.2.</li>
+      <li><code>verify_submission.py</code> on fold 0: blend 0.6632 vs research 0.6644 (−0.0012); streaming/batch parity OK; deterministic.</li>
+      <li><code>crunch test</code> passed in 27 min (training 1,577 s on the GPU), determinism check passed.</li>
+      <li>Inference 684 µs per point (SVM 38%): about 23 min for the cloud workload with 4 workers.</li>
+      <li>Risk: if the cloud has no GPU, NBM pretraining and the GRU run on the CPU (unmeasured).</li>
+    </ul></div>
+  <div><h4 style="margin-top:0">Next, in order</h4>
+    <ul>
+      <li>Run the paired test of the <code>multi4</code> NBM (built 2026-10-16, <code>--nbm-multi 4</code>): trees, then SVM and a proxy blend, then both GRU seeds. Adopt if the full blend gains ≥ +0.0005, 4/5 folds, &gt; 2 SE.</li>
+      <li>Then build the equation R3 frozen variance forecasts (F2 / F3l) as <code>vol_</code>-style columns; paired run.</li>
+      <li>A first platform submission to measure the CV-to-board offset (owner's call; currently "not before about 0.67 CV"). The gap from 0.6483 to 0.67 is +0.022, far more than any open lead is likely to give.</li>
+    </ul></div>
+</div>
+
+<!-- ============================== DETAILS ============================== -->
+<h2><span class="num">1</span>The base: streaming features and a tree model</h2>
+
+<article class="entry" data-v="adopted" id="a-kernel">
+  <div class="entry-head"><h3><span class="id">1.1</span>Streaming feature kernel: AR whitening, running means, windows and scans</h3><span class="pill adopted">Adopted</span><span class="effect">74 features 0.594 → 270 features 0.6155; 388 features −0.005; without context −0.004</span></div>
+  <div><div class="label">Intuition</div>
+  <p>Breaks here are subtle: almost never a mean shift, mostly a change in variance, roughness, tails or dependence. So first remove what is predictable (an AR(10) model fitted on the history), then watch 32 simple "increment series" built from each new point and its residual: squares, absolute values, tail flags, lag products, ranks, differences at several lags. For each one, ask whether its recent average has drifted from what the history says is normal, using all online points, the last 10/30/100 points, and a <em>scan</em> over every possible start time. The scan matters because we don't know when the break happened; the best start time adapts to it.</p></div>
+  <div class="math"><div class="label">Math</div>
+  <p>AR residual \(e_t = z_t-\sum_{k=1}^{10}\hat\phi_k z_{t-k}\), \(\hat\phi\) by least squares on the history. For each increment \(g_k(t)\) the history gives a centre \(m_k\) and a long-run variance by batch means, \(\hat\sigma^2_{\mathrm{LR},k}=b\cdot\widehat{\mathrm{Var}}(\text{block means})\), so autocorrelated series are not over-flagged. With \(S_k(j,t)=\sum_{s=j}^{t}(g_k(s)-m_k)\):</p>
+  $$Z_k^{W}(t)=\frac{S_k(t-W+1,t)}{\sqrt{W\hat\sigma^2_{\mathrm{LR},k}}},\qquad \mathrm{Scan}_k(t)=\max_{j\le t-L_{\min}+1}\frac{S_k(j,t)}{\sqrt{(t-j+1)\,\hat\sigma^2_{\mathrm{LR},k}}}\ \ (\text{and the min}),$$
+  <p>from cumulative sums in \(O(t)\) per step, plus a decile chi-square, EWMAs and 5 history descriptors. The same compiled kernel runs in training and inference, so features are identical and causal.</p></div>
+  <div class="why"><b>Why it worked:</b> it measures exactly the kinds of change these breaks make, and the scan adapts to the unknown break time. <b>What failed around it:</b> 388 features (finer tails, extra windows) lost −0.005 (redundant features split importance); dropping the history context lost −0.004 (context tells the trees how to read each type of series); 32 more history descriptors added nothing.</div>
+</article>
+
+<article class="entry" data-v="adopted" id="a-trees">
+  <div class="entry-head"><h3><span class="id">1.2</span>Per-step tree classifier (LightGBM, later XGBoost on GPU)</h3><span class="pill adopted">Adopted</span><span class="effect">0.6155; XGBoost same score, 2× faster; logistic regression 0.5939</span></div>
+  <div><div class="label">Intuition</div>
+  <p>Turn the stream into a table: one row per (series, every 3rd online step), label 1 once the break has happened. Gradient-boosted trees learn which combinations of features mean "break", for example "tail scan high <em>and</em> this kind of series". Heavy regularisation (at least 2,000 rows per leaf) keeps them from memorising individual series, each of which contributes about 170 near-identical rows.</p></div>
+  <div class="math"><div class="label">Math</div>
+  $$\min_F\ \sum_{i,t} w_{i,t}\,\ell\big(y_{i,t},F(\mathbf x_{i,t})\big),\qquad \ell(y,F)=-y\log\sigma(F)-(1-y)\log(1-\sigma(F)),$$
+  <p>with the metric-matched weights \(w_{i,t}\). 31 leaves, learning rate 0.03, min 2,000 rows per leaf, feature fraction 0.5; rounds picked on the cross-validated average curve.</p></div>
+  <div class="why"><b>Why it worked:</b> the weights align training with the metric, and trees combine many weak statistics conditioned on the type of series. Logistic regression got within 0.022 and blended for only +0.002, below the bar.</div>
+</article>
+
+<article class="entry" data-v="rejected" id="a-bakeoff">
+  <div class="entry-head"><h3><span class="id">1.3</span>"Predict the next point" bake-off: better models of normal</h3><span class="pill rejected">Exhausted</span><span class="effect">raw 0.5565 → AR(1) 0.575 → AR(10) 0.590; everything else flat (3,000 series, stacked LightGBM)</span></div>
+  <div><div class="label">Intuition</div>
+  <p>If you can predict the next point better, surprises stand out more. We tried AR of order 1 to 50, order by BIC, ridge AR, random walk, EWMA, an adaptive error scale, Student-t surprise, and a nonlinear GBM correction on top of AR(10). AR(10) captured all the linearly predictable structure; the nonlinear correction explained −0.05% of the remaining error.</p></div>
+  <div class="math"><div class="label">Math</div>
+  <p>Surprise \(e_t^2/\hat\sigma^2\) or \(-\log f_\nu(e_t/\hat\sigma)\). The adaptive scale \(\hat\sigma_t^2=\lambda\hat\sigma^2_{t-1}+(1-\lambda)e_t^2\) tracks a variance break, so \(e_t/\hat\sigma_t\) returns to normal after it: the evidence is erased.</p></div>
+  <div class="why"><b>Why it failed:</b> there is no more linear structure to find, and adaptive scales absorb the break. The later normal-behaviour model (6.1) helped for a different reason: not a better forecast, but a stream that behaves usefully after a break.</div>
+</article>
+
+<h2><span class="num">2</span>A second model and how to combine</h2>
+
+<article class="entry" data-v="adopted" id="a-gru">
+  <div class="entry-head"><h3><span class="id">2.1</span>GRU sequence model fed the top-20 kernel features</h3><span class="pill adopted">Adopted</span><span class="effect">0.6152 alone; 50/50 blend with the trees 0.6244 (+0.0086)</span></div>
+  <div><div class="label">Intuition</div>
+  <p>A recurrent network reads the series point by point and keeps a memory, so it can learn its own way of accumulating evidence. On raw inputs it was weaker than the trees (about 0.60). Giving it the 20 most important kernel features lifted it to the trees' level, and because it makes <em>different mistakes</em>, averaging the two gave +0.0086. The last 100 history points warm up its memory.</p></div>
+  <div class="math"><div class="label">Math</div>
+  $$\mathbf h_t=\mathrm{GRU}\big(\mathbf h_{t-1},\ \mathrm{GELU}(A\mathbf x_t)\big),\qquad p_t=\sigma\big(\mathrm{MLP}(\mathbf h_t)\big).$$
+  <p>Inputs: \(z_t\), \(e_t\), \(e_t^2-1\), \(|e_t|-0.8\), \(e_te_{t-1}\), \(\mathbb 1[|e_t|>3]\), 6 history descriptors, an online flag, \(\log(1+t)\), the top-20 features as \(\mathrm{clip}(\mathrm{std}(\mathrm{sign}(x)\log(1+|x|)),\pm6)\). Same weighted cross-entropy as the trees. Hidden 64, AdamW, cosine schedule, early stopping.</p></div>
+  <div class="why"><b>Why it worked:</b> different errors from the trees. 40 input features instead of 20 was worse (0.6096 vs 0.6152).</div>
+</article>
+
+<article class="entry" data-v="adopted" id="a-blend">
+  <div class="entry-head"><h3><span class="id">2.2</span>Blending: a fixed weighted average of logits</h3><span class="pill adopted">Adopted</span><span class="effect">plain logit average = per-step standardised (0.6244); cross-fitted weights 0.6429 vs 0.6427</span></div>
+  <div><div class="label">Intuition</div>
+  <p>The first blend standardised scores across all series at each step, which is impossible in production because series are scored one at a time. A plain weighted average of each model's logit, with one global scale per model, scored the same, so that is what ships.</p></div>
+  <div class="math"><div class="label">Math</div>
+  $$s_{i,t}=\sum_m w_m\,\frac{\mathrm{logit}\,p^{(m)}_{i,t}}{c_m},\qquad \sum_m w_m=1,\qquad w=(0.5,\,0.3,\,0.2)\ \text{for trees, GRU pair, SVM}.$$</div>
+  <div class="why"><b>Why it works:</b> the weight plateau is flat and weights chosen on four folds score the same on the fifth, so the blend numbers are honest.</div>
+</article>
+
+<article class="entry" data-v="rejected" id="a-smooth">
+  <div class="entry-head"><h3><span class="id">2.3</span>Smoothing the score over time (EWMA, running max)</h3><span class="pill rejected">Rejected</span><span class="effect">EWMA half-life 1–8 rows −0.0004 to −0.0078; decaying max 0 to −0.0014; plain running max 0.589</span></div>
+  <div><p>Once a break has happened it stays happened, so maybe the score should never go down, or be smoothed: \(\tilde s_t=\alpha s_t+(1-\alpha)\tilde s_{t-1}\) or \(\tilde s_t=\max(s_t,\delta\tilde s_{t-1})\).</p></div>
+  <div class="why"><b>Why it failed:</b> the models already accumulate evidence; smoothing only adds lag, and a running max locks in early false alarms.</div>
+</article>
+
+<article class="entry" data-v="rejected" id="a-stack">
+  <div class="entry-head"><h3><span class="id">2.4</span>Stacking, and separate weights per step range</h3><span class="pill rejected">Rejected</span><span class="effect">stacking −0.0013 to −0.0044 (0–1/5); per-step-range weights −0.0000 ± 0.0002</span></div>
+  <div><p>Instead of fixed weights, let a monotone LightGBM combine the members, \(s=G(s^{(1)},s^{(2)},s^{(3)},t,\mathbf c_i)\), cross-fitted by fold; or let the weights differ by step range.</p></div>
+  <div class="why"><b>Why it failed:</b> with history descriptors as inputs the stacker memorised groups of series (each has about 170 near-identical rows); its curve fell from the first checkpoint. Without them it still lost. One weighted sum is already the right combiner. (Another team's +0.008 from a ranking stack did not reproduce here.)</div>
+</article>
+
+<article class="entry" data-v="rejected" id="a-rank">
+  <div class="entry-head"><h3><span class="id">2.5</span>Ranking objectives instead of classification</h3><span class="pill rejected">Rejected</span><span class="effect">trees rank:pairwise −0.017 (fold 0); GRU pair loss −0.0011 ± 0.0014 (2/5)</span></div>
+  <div class="math">
+  $$\mathcal L=\sum_t\ \sum_{i\in P_t}\sum_{j\in N_t}\log\big(1+e^{-(s_{i,t}-s_{j,t})}\big)\quad(\text{GRU: } 0.3\,\mathcal L_{\text{rank}}+0.7\,\mathcal L_{\text{BCE}}).$$</div>
+  <div class="why"><b>Why it failed</b> <span class="tag h">H</span>: the metric only ranks series at the same step, so this looks ideal, but the pairwise signal is noisier than plain per-row labels; the trees declined after 100 rounds.</div>
+</article>
+
+<article class="entry" data-v="rejected" id="a-capacity">
+  <div class="entry-head"><h3><span class="id">2.6</span>Bigger or gated GRUs, more seeds, other inputs</h3><span class="pill rejected">Rejected</span><span class="effect">8 capacity settings × 2 seeds within noise; top-20 from all features −0.0008; 4 seeds +0.0002 in the blend</span></div>
+  <div><p>Two or three layers, hidden 96–128, learned channel gates \(\tilde{\mathbf x}_t=\mathbf g\odot\mathbf x_t\) (fixed, per series, per step), 40 features, top-20 picked from all tree features, seeds 2 and 3. The learned gates showed what the GRU values: time, tail scans and dependence features, not raw values. Auxiliary targets (time since break, break type) were built but only smoke-tested. An earlier single-fold sweep of ramped labels, memory bias, positive boost, dropout, learning rate and hidden size was indistinguishable from seed noise (about ±0.01).</p></div>
+  <div class="why"><b>Why it failed:</b> the GRU is short of data, not capacity. Seed averaging helps the GRU alone (+0.0024) but the blend already averages that noise away.</div>
+</article>
+
+<h2><span class="num">3</span>More training data</h2>
+
+<article class="entry" data-v="adopted" id="a-recut">
+  <div class="entry-head"><h3><span class="id">3.1</span>Boundary re-cut augmentation</h3><span class="pill adopted">Adopted</span><span class="effect">trees +0.0093 ± 0.0021 (5/5); GRU +0.0058 / +0.0088; ×4 vs ×2 +0.0007 ± 0.0014</span></div>
+  <div><div class="label">Intuition</div>
+  <p>The learning curve said doubling the data is worth about +0.015 (25% / 50% / 100% of the series: 0.595 / 0.613 / 0.627 on fold 0). New, correctly labelled series can be made from real ones by moving the history/online boundary. Move it earlier and the end of the history becomes online data (still break-free, so the break just happens later). Move it later and pre-break online points join the history.</p></div>
+  <div class="math"><div class="label">Math</div>
+  <p>Shift \(s>0\) (earlier): \(h'=h_{1:n-s},\ o'=(h_{n-s+1:n},o_{1:m}),\ \tau'=\tau+s\). Shift \(s&lt;0\) (later), only if no break in the first \(|s|\) online points: \(h'=(h,o_{1:|s|}),\ o'=o_{|s|+1:m},\ \tau'=\tau-|s|\). Shifts drawn so online length and break position keep their training distributions; variants train only in folds where their parent trains.</p></div>
+  <div class="why"><b>Why it worked:</b> real values, exact labels, a data-limited model. The gain is at every step range. <b>Why more did not help:</b> four variants reuse the same values as two. Untested: weighting the shifts toward early breaks, which would target the weakest slices.</div>
+</article>
+
+<article class="entry" data-v="rejected" id="a-trim">
+  <div class="entry-head"><h3><span class="id">3.2</span>History-trimming re-cuts</h3><span class="pill rejected">Rejected</span><span class="effect">−0.0005 ± 0.0014 (2/5); trim-only variants never run</span></div>
+  <div><p>Make variants more different by also dropping the <em>start</em> of the history, \(h'=h_{a+1:n}\) (new length drawn from the history-length distribution), which changes every per-series reference statistic while labels stay exact.</p></div>
+  <div class="why"><b>Why it failed:</b> the trees still see the same values.</div>
+</article>
+
+<article class="entry" data-v="rejected" id="a-synth">
+  <div class="entry-head"><h3><span class="id">3.3</span>Synthetic breaks injected into real data</h3><span class="pill rejected">Rejected</span><span class="effect">trees −0.0022 ± 0.0027 (2/5); without dependence +0.0001 ± 0.0024; GRU −0.0033 ± 0.0046 (1/5)</span></div>
+  <div><p>Apply an artificial break to real break-free stretches (variance, dependence, heavier tails, skew, volatility clustering, splice from another series), sized so single statistics detect them about as well as real breaks: \(x'_s=T_\theta(x_s)\) for \(s\ge\tau\), with \(\theta\) calibrated (scale 0.5: oracle AUCs 0.519 / 0.534 / 0.545 vs real 0.515 / 0.532 / 0.555 at 30 / 100 / 300 points).</p></div>
+  <div class="why"><b>Why it failed:</b> the synthetic breaks have the wrong shape over time: dependence breaks show too early, the others grow too slowly with more points. The model learns the artificial signature. Trees gained after step 600 (+0.004) and lost before step 100 (−0.008).</div>
+</article>
+
+<article class="entry" data-v="rejected" id="a-ext">
+  <div class="entry-head"><h3><span class="id">3.4</span>Real labelled data from the 2025 edition</h3><span class="pill rejected">Rejected</span><span class="effect">−0.0057 ± 0.0025 (1/5); source-balanced −0.0006 ± 0.0014 (2/5)</span></div>
+  <div><p>The rules allow the 2025 offline-competition data: about 10,000 new real series, none shared with this edition (checked with two fingerprints). Cut into this edition's shape, labels exact.</p></div>
+  <div class="why"><b>Why it failed:</b> a different population: 58% heavy-tailed (vs 15%), little autocorrelation (6% with |ρ1| &gt; 0.3 vs 26%), shorter histories, only 29% breaks. The trees learned "2025-looking series rarely break", which is wrong here (history length rose in importance). Re-weighting each source to balanced classes removed the damage but gave no gain.</div>
+</article>
+
+<h2><span class="num">4</span>New evidence features</h2>
+
+<article class="entry" data-v="adopted" id="a-ev">
+  <div class="entry-head"><h3><span class="id">4.1</span>Likelihood-ratio evidence: CUSUM, Shiryaev–Roberts, Bayesian model averaging</h3><span class="pill adopted">Adopted</span><span class="effect">trees +0.0030 ± 0.0021 (3/5); blend 0.6336 → 0.6345 (+0.0008 per fold)</span></div>
+  <div><div class="label">Intuition</div>
+  <p>The classical sequential tests. Turn each residual into a standard normal using the series' own history, then, for 14 candidate kinds of break, keep a running tally of how much more likely the recent points are under "broken" than "normal". CUSUM restarts when evidence goes negative; Shiryaev–Roberts adds up all start times; the Bayesian version weighs start times by the generator's break-position prior.</p></div>
+  <div class="math"><div class="label">Math</div>
+  <p>\(w_t=\Phi^{-1}(\hat F_{\text{hist}}(e_t))\), \(\Lambda^{a}_s=f_a(w_s)/\varphi(w_s)\):</p>
+  $$C_t=\max(0,\,C_{t-1}+\log\Lambda_t),\quad R_t=(1+R_{t-1})\Lambda_t,\quad \frac{P(\tau\le t\mid w_{1:t})}{P(\tau>t\mid w_{1:t})}=\frac{\sum_a\omega_a\sum_{j\le t}\pi_j\prod_{s=j}^{t}\Lambda^{a}_s}{\Pi(\tau>t)}.$$</div>
+  <div class="why"><b>Why it only half-worked:</b> borderline on the rule (mean passes, not 2 SE, 3/5); kept because it is O(1) per point. In the blend the GRU already covered most of it. The full 48-feature set was only ever measured on a base that was later rejected.</div>
+</article>
+
+<article class="entry" data-v="adopted" id="a-vol">
+  <div class="entry-head"><h3><span class="id">4.2</span>Volatility state at the end of the history (frozen GARCH forecast)</h3><span class="pill adopted">Adopted</span><span class="effect">trees +0.0070 ± 0.0013 (5/5); GRU +0.0034 ± 0.0010 (5/5); blend 0.6345 → 0.6396</span></div>
+  <div><div class="label">Intuition</div>
+  <p>The error analysis found the real obstacle: unbroken series' variance wanders on its own about as much as a typical break, but that wandering is partly predictable from the <em>end</em> of the history (correlation about 0.5). So compare online variance with a forecast that starts at the end-of-history volatility and decays to a slow end-of-history level. The forecast is frozen: it never sees online data, so it cannot absorb a break.</p></div>
+  <div class="math"><div class="label">Math</div>
+  $$\sigma^2_{s+1}=\omega+\alpha e_s^2+\beta\sigma_s^2,\qquad s_f^2(k)=L+p^{\,k-1}\big(\sigma^2_{T+1}-L\big),\quad p=\alpha+\beta,\quad L=(1-\lambda)\sum_{s\le T}\lambda^{T-s}e_s^2,\ \lambda=2^{-1/200}.$$
+  <p>\(u_k=e_k/s_f(k)\); features: standardised running means and a scan of \(\min(u_k^2,25)\), log realised-over-forecast variance, and 4 per-series constants. GRU gets \(u\), \(u^2-1\), \(\log s_f^2\).</p></div>
+  <div class="why"><b>Why it worked:</b> it removes the predictable part of the no-break wandering (no-break spread at step 99: 0.335 → 0.251). A plain GARCH path did <em>not</em> help (median half-life 8 steps); the slow end-of-history level is what mattered. Gains at every step range, beating the predicted +0.001 to +0.004.</div>
+</article>
+
+<article class="entry" data-v="adopted" id="a-dist">
+  <div class="entry-head"><h3><span class="id">4.3</span>Whole-distribution tests: KS, Anderson–Darling, Cramér–von Mises, Wasserstein</h3><span class="pill adopted">Adopted (owner)</span><span class="effect">compact −0.0004 (2/5); full trees +0.0011 (3/5); blend +0.0017 ± 0.0008 (4/5) → 0.6413</span></div>
+  <div><p>Compare the whole shape of the online distribution with the history's, on the AR residual and the volatility-adjusted residual (on raw values, autocorrelation inflates the test):</p></div>
+  <div class="math">
+  $$D_{\mathrm{KS}}=\sup_x|\hat F_n-F|,\quad A^2=n\!\int\!\frac{(\hat F_n-F)^2}{F(1-F)}\,dF,\quad W_1=\int|\hat F_n-F|\,dx,$$
+  <p>each over all online points, the last 100, and scanned over every start (segment \(\ge20\)).</p></div>
+  <div class="why"><b>Why it barely worked:</b> Anderson–Darling (tail-weighted) was best, but the trees found the family mostly redundant with their tail and variance scans (1.4–1.8% of gain). The small blend gain was consistent in every step range, and inference cost is not scored.</div>
+</article>
+
+<article class="entry" data-v="adopted" id="a-svm">
+  <div class="entry-head"><h3><span class="id">4.4</span>Kernel SVM as a third blend member</h3><span class="pill adopted">Adopted</span><span class="effect">0.6328 alone; blend +0.0012 ± 0.0004 (4/5) → 0.6427; BOCPD inputs, wider kernel, D 16k: no gain</span></div>
+  <div><p>A smooth, non-tree model on the top 100 features: "series that look alike get similar scores". Random Fourier features approximate the RBF kernel; a least-squares SVM is solved in closed form, and one eigendecomposition gives the whole regularisation grid.</p></div>
+  <div class="math">
+  $$\phi(\mathbf x)=\sqrt{2/D}\,\cos(W\mathbf x+\mathbf b),\ D=8192;\qquad \boldsymbol\beta(\lambda)=(\Phi^\top\Omega\Phi+\lambda I)^{-1}\Phi^\top\Omega\mathbf y=Q(\Lambda+\lambda I)^{-1}Q^\top\Phi^\top\Omega\mathbf y.$$</div>
+  <div class="why"><b>Why it added only a little:</b> far stronger than expected (best single model at steps 0–100), but it reads the same features as the trees (correlation about 0.83). Blending pays for different errors, not different algorithms.</div>
+</article>
+
+<article class="entry" data-v="rejected" id="a-replay">
+  <div class="entry-head"><h3><span class="id">4.5</span>Per-series null calibration by replaying the history</h3><span class="pill rejected">Rejected</span><span class="effect">variance stats +0.002–0.004 single; vol stats ≈ 0; tail/distribution stats −0.006 to −0.014</span></div>
+  <div><p>Run each statistic on the series' own history as if it were online data, to learn how big it gets for <em>this</em> series when nothing happens, then measure the online value against that: \(z=(x-\tilde m_k)/\tilde s_k\) with per-series moments shrunk to the population (\(\kappa=3\)).</p></div>
+  <div class="why"><b>Why it failed:</b> the volatility state already does this for variance, with a better baseline; the replays use shorter pseudo-histories, which biases tail and distribution statistics; with 1–2 replays at the steps that matter, the per-series baseline is mostly noise.</div>
+</article>
+
+<article class="entry" data-v="rejected" id="a-oracle">
+  <div class="entry-head"><h3><span class="id">4.6</span>Oracle screens: ordinal patterns, nonlinear volatility, matrix profile / FLUSS</h3><span class="pill rejected">Rejected</span><span class="effect">single AUCs 0.47–0.55; incremental negative or not significant</span></div>
+  <div><p>Tested with the break position known (the most favourable setting) against a baseline of what the models already see. Ordinal patterns: \(H=-\sum_\pi p_\pi\log p_\pi\) over the \(3!\)/\(4!\) up-down patterns. Nonlinear volatility: leverage \(\mathrm{corr}(e_{t-k},e_t^2)\), clustering at lags 2–20, irreversibility. Matrix profile: FLUSS arc crossings and novelty.</p></div>
+  <div class="why"><b>Why it failed:</b> ordinal patterns are scale-free, so blind to variance, where the breaks are; nonlinear volatility effects are absent (the series are near time-reversible); nearest-neighbour arcs are random in noise-like data, and raw novelty is the variance ratio in disguise (ρ 0.80–0.85). On the variance-matched slice <em>nothing</em> worked.</div>
+</article>
+
+<article class="entry" data-v="rejected" id="a-mmd">
+  <div class="entry-head"><h3><span class="id">4.7</span>Kernel two-sample test (MMD) on residual pairs and triples</h3><span class="pill rejected">Rejected</span><span class="effect">trees −0.0004 ± 0.0015 (2/5); blend −0.0003</span></div>
+  <div><p>Compare the joint behaviour of consecutive residuals, online vs history, with a test that sees any distribution difference. It was the only oracle family with signal (at 300 points), and briefly the best single feature (0.594).</p></div>
+  <div class="math">
+  $$\mathrm{MMD}^2\approx\Big\|\tfrac1n\sum_{s}\phi(\mathbf v_s)-\bar\phi_{\text{hist}}\Big\|^2,\quad \mathbf v_s=(e_{s-1},e_s),\ \phi:\ 256\ \text{random Fourier features}.$$</div>
+  <div class="why"><b>Why it failed:</b> rank correlation 0.81–0.91 with the Anderson–Darling features already in the model.</div>
+</article>
+
+<h2><span class="num">5</span>Bayesian change-point posteriors</h2>
+
+<article class="entry" data-v="adopted" id="a-bocpd">
+  <div class="entry-head"><h3><span class="id">5.1</span>BOCPD: exact one-break posterior with an empirical-Bayes prior</h3><span class="pill adopted">Adopted</span><span class="effect">trees +0.0019 ± 0.0003 (5/5, 6 SE); GRU +0.0038 / +0.0067; blend → 0.6438</span></div>
+  <div><div class="label">Intuition</div>
+  <p>Specialise Bayesian online change-point detection to this task: at most one break, the history is the known "before" regime, and the break position follows the generator's prior. For every possible break time, ask how well "normal before, something new after" explains the data, with the new mean and variance integrated out. The prior on the new regime is fitted on real training breaks: typical post-break variance 1.23× the history, essentially no mean shift.</p></div>
+  <div class="math"><div class="label">Math</div>
+  <p>Pre-break \(w_s\sim\mathcal N(0,1)\); post-break \(\mathcal N(\mu,\sigma^2)\) with a Normal–Inverse-Gamma prior. Segment marginal likelihood (closed form) and posterior odds:</p>
+  $$p(w_{j:t})=\frac{\Gamma(\alpha_n)}{\Gamma(\alpha_0)}\frac{\beta_0^{\alpha_0}}{\beta_n^{\alpha_n}}\sqrt{\frac{\kappa_0}{\kappa_n}}(2\pi)^{-n/2},\qquad O_t=\frac{\sum_{j\le t}\pi_j\,p(w_{j:t})/\prod_{s=j}^{t}\varphi(w_s)}{\Pi(\tau>t)}.$$
+  <p>Features on two streams (\(w\), volatility-adjusted \(w_u\)): log-odds, log Bayes factor, posterior mean log time since break, log variance, mean. EB prior \(\kappa_0=490,\alpha_0=3.04,\beta_0=2.51\).</p></div>
+  <div class="why"><b>Why it worked:</b> the learned prior is the key (a vague prior loses 0.011 single-feature AUC). The posterior variance estimates (<code>bo_wu_lvr</code>, rank 6) mattered more than the log-odds. The most consistent gain measured: every fold, 6 SE. In the GRU it raised the member but not the blend (+0.0004): the trees already had it.</div>
+</article>
+
+<article class="entry" data-v="rejected" id="a-bocpd2">
+  <div class="entry-head"><h3><span class="id">5.2</span>Richer BOCPD: autoregressive post-break model and tail-frequency stream</h3><span class="pill rejected">Rejected</span><span class="effect">trees −0.0002 ± 0.0007 (2/5)</span></div>
+  <div><p>Let the new regime also change its dependence, \(w_s=\mu+\phi w_{s-1}+\varepsilon_s\) with an NIG regression prior, add a Beta–Bernoulli stream for the tail frequency \(\mathbb 1[|w_s|>2]\), and fit priors per series type.</p></div>
+  <div class="why"><b>Why it failed:</b> it catches a pure dependence break that plain BOCPD misses entirely (log-odds +19.6 vs −0.4), but such breaks are rare here: on real data it ranks series almost identically to the plain version (ρ 0.97). Per-type priors did not beat the global one.</div>
+</article>
+
+<article class="entry" data-v="rejected" id="a-pshape">
+  <div class="entry-head"><h3><span class="id">5.3</span>Shape of the break-time posterior (sharpness)</h3><span class="pill rejected">Rejected</span><span class="effect">single AUC about 0.60; linear gate ±0.0005; trees −0.0001 / −0.0011 / −0.0003, stopped after 3 folds</span></div>
+  <div><p>When a break really happened, the posterior over <em>when</em> concentrates; with no break it stays spread like the prior. Columns per stream: \(H(q)=-\sum_j q_j\log q_j\), \(\mathrm{KL}(q\,\|\,\tilde\pi)\), \(\mathrm{sd}_q[\log(1+t-j)]\). History entropy as context was also tested.</p></div>
+  <div class="why"><b>Why it failed:</b> the trees cannot use the shape beyond the odds, time since break and variance estimates they already have (stopped by the pre-written rule: folds 0 and 1 both ≤ 0). History entropy was mostly history length.</div>
+</article>
+
+<h2><span class="num">6</span>The learned normal-behaviour model, and foundation models</h2>
+
+<article class="entry" data-v="adopted" id="a-nbm">
+  <div class="entry-head"><h3><span class="id">6.1</span>Normal-behaviour model (NBM): a pretrained GRU forecaster fed into BOCPD</h3><span class="pill adopted">Adopted</span><span class="effect">trees +0.0049 ± 0.0014 (5/5); blend +0.0032 (5/5); SVM inputs +0.0005; GRU channels +0.0007 (3/5)</span></div>
+  <div><div class="label">Intuition</div>
+  <p>Train a small GRU, without labels, to predict the next residual of break-free histories as a Student-t distribution. Online, measure how surprising each new point is under that forecast, rank the surprise against the series' own history, and run it through the BOCPD posterior. <code>nb_logodds</code> is the best single feature measured (about 0.62–0.63 vs 0.605), and it adds signal where variance does not change, which nothing else did.</p></div>
+  <div class="math"><div class="label">Math</div>
+  $$\mathbf h_t=\mathrm{GRU}(\mathbf h_{t-1},\mathrm{GELU}(A\mathbf x_t)),\quad (m_t,\log s_t)=\mathrm{head}(\mathbf h_t),\quad e_{t+1}\mid\mathbf h_t\sim t_\nu(m_t,s_t);\qquad v_t=\frac{e_t-m_t}{s_t},\ \tilde v_t=\Phi^{-1}(\hat F_{\text{hist}}(v_t)).$$
+  <p>The BOCPD posterior on \(\tilde v\) (per-fold EB prior) gives <code>nb_logodds, nb_tsb, nb_lvr, nb_mu</code>, plus the scale drift \(\log s_t-\log s_T\) and its last-100 mean. In CV the NBM is pretrained per fold on that fold's training histories only. Width 64, batch 24, 25 epochs.</p></div>
+  <div class="why"><b>Why it worked:</b> <code>nb_lvr</code> became the top tree feature (7% of gain). The equation check (7.5) showed the NBM does <em>not</em> forecast the history better than GARCH-t (+0.0001 nats), so the gain comes from how its stream behaves after a break <span class="tag h">H</span>. Pretraining sweeps (23 configs): smaller batches and higher learning rates mattered, width did not; single-seed leaders fell by 0.006 on reseeding.</div>
+</article>
+
+<article class="entry" data-v="pending" id="a-nbm3">
+  <div class="entry-head"><h3><span class="id">6.2</span>NBM round 3: architecture and target designs</h3><span class="pill pending">Open: multi4</span><span class="effect">multi4 +0.0047 ± 0.0008 at the gate (3 seeds); built 2026-10-16, paired run pending; xin +0.0022; l2, TCN, k4, LSTM no better</span></div>
+  <div><p>The first two sweeps varied only training knobs. Round 3 varied the design, one change at a time from the adopted model, each on 3 seeds (gate: single-feature <code>nb_logodds</code> on series 5000–6999):</p>
+  <table class="mini">
+    <tr><th>design</th><th>what changes</th><th>nb_logodds</th><th>var-same</th><th>vs reference</th></tr>
+    <tr><td>ref</td><td>adopted model (bs24, 25 epochs)</td><td class="n">0.6277</td><td class="n">0.5090</td><td class="n"></td></tr>
+    <tr><td><b>multi4</b></td><td>heads for 1–4 steps ahead; stream on the 1-step head</td><td class="n"><b>0.6324</b></td><td class="n">0.5205</td><td class="n"><b>+0.0047 ± 0.0008</b></td></tr>
+    <tr><td>xin</td><td>+5 inputs (EWMAs of e², rank score, |Δz|)</td><td class="n">0.6298</td><td class="n">0.5162</td><td class="n">+0.0022 ± 0.0022</td></tr>
+    <tr><td>l2</td><td>2-layer GRU</td><td class="n">0.6274</td><td class="n">0.5104</td><td class="n">−0.0002 ± 0.0018</td></tr>
+    <tr><td>tcn</td><td>causal dilated convolution (finite memory)</td><td class="n">0.6258</td><td class="n">0.5049</td><td class="n">−0.0018 ± 0.0010</td></tr>
+    <tr><td>k4</td><td>predict 4 steps ahead</td><td class="n">0.6242</td><td class="n">0.5008</td><td class="n">−0.0035 ± 0.0006</td></tr>
+    <tr><td>lstm</td><td>LSTM cell</td><td class="n">0.6196</td><td class="n">0.4877</td><td class="n">−0.0081 ± 0.0017</td></tr>
+  </table></div>
+  <div class="math">
+  $$\mathcal L_{\text{multi4}}=\sum_{h=1}^{4}-\log t_\nu\big(e_{t+h};\,m^{(h)}_t,s^{(h)}_t\big),\qquad \text{stream uses } (m^{(1)}_t,s^{(1)}_t)\ \text{only}.$$</div>
+  <div class="why"><b>Status:</b> multi4 beat the reference on every seed, in every step range and on the variance-unchanged slice. It is now built into <code>cv.py</code> and <code>gru_cv.py</code> (<code>--nbm-multi 4</code>; after training only the 1-step rows of the last layer are kept, so the shipped network and its cost are unchanged; checked bit-identical to the sweep's model). Gate gains have shrunk 3–5× into the trees before, so the written expectation is about +0.001 to +0.0015 in the trees and less in the blend; the adoption bar is a blend gain of ≥ +0.0005 (4/5, &gt; 2 SE). <b>Mechanism</b> <span class="tag h">H</span>: the 2–4-step heads force the shared network to carry a slower scale state, so the 1-step stream adapts less after a break.</div>
+</article>
+
+<article class="entry" data-v="rejected" id="a-tta">
+  <div class="entry-head"><h3><span class="id">6.3</span>NBM fine-tuned on each series' own history (test-time adaptation)</h3><span class="pill rejected">Rejected</span><span class="effect">strong shrink −0.0007 / −0.0008 vs control; weak shrink −0.0046 / −0.0026; held-out NLL worse</span></div>
+  <div><p>The owner's idea: learn the normal-behaviour equation <em>per series</em>. Start from the shared NBM and fine-tune its last layer on each series' history, shrunk toward the shared weights, then whiten online errors against the last history rows the adaptation never saw:</p></div>
+  <div class="math">
+  $$\hat\theta_i=\arg\min_\theta\ \sum_{s\le T-R}-\log t_\nu(e_s;\theta)+\lambda\,\|\theta-\theta_{\text{shared}}\|^2,\qquad \lambda\in\{1,\ 0.05\}.$$</div>
+  <div class="why"><b>Why it failed:</b> the adaptation overfits: held-out history NLL rose from 1.3697 to 1.3704 (λ = 1) and 1.3710 (λ = 0.05), and both arms lost on both seeds. Using only the end of the history as the whitening reference was no win either (+0.0002 / −0.0053).</div>
+</article>
+
+<article class="entry" data-v="rejected" id="a-chronos">
+  <div class="entry-head"><h3><span class="id">6.4</span>Chronos-2 foundation model: surprise stream and encoder drift</h3><span class="pill rejected">Closed</span><span class="effect">surprise <code>ch_logodds</code> 0.589 vs NBM 0.624; encoder gate NOT TRUSTED; about 55 h CPU per 10,000 series</span></div>
+  <div><p>Use a large pretrained time-series model instead of the small NBM: (a) the probability integral transform of each point under its forecast quantiles, \(\Phi^{-1}(\hat F_{t\mid t-K}(x_t))\), through the same posterior; (b) its encoder embeddings in the embedding-drift machinery (7.3).</p></div>
+  <div class="why"><b>Why it was closed:</b> (a) weaker than the NBM, though less correlated (0.75) and slightly better on the variance-unchanged slice; (b) the gate could not be trusted (its positive control lost −0.0044 on information worth +0.0049 in production), so the encoder stage was not run. Either way the CPU cost (about 20 s per series, about 55 h per 10,000 series) is far over the 15 h per two weeks budget.</div>
+</article>
+
+<h2><span class="num">7</span>Hypotheses tested and closed</h2>
+
+<article class="entry" data-v="rejected" id="a-entropy">
+  <div class="entry-head"><h3><span class="id">7.1</span>Entropy rises while the break happens</h3><span class="pill rejected">Rejected</span><span class="effect">rise AUC 0.49–0.51 (all 10,000 series); binned-entropy drop detector within ±0.0003</span></div>
+  <div><p>The owner's idea: during the switch, a rolling window holds a mix of old and new behaviour, so entropy should bump up and then settle. Event study around \(\tau\): \(\mathrm{rise}=\mathrm{peak}-\max(\mathrm{pre},\mathrm{plateau})\).</p></div>
+  <div class="why"><b>Why it failed:</b> breaks here are instant switches between two stationary processes; the mixing bump (a Jensen–Shannon divergence) is tiny for such subtle breaks. Binned entropy does <em>fall</em> after breaks, but that is the variance increase seen through fixed history bins. Small runs "passed" on a flawed statistic (peak − plateau is positive for any falling step) and on noise; the full run removed it.</div>
+</article>
+
+<article class="entry" data-v="rejected" id="a-backcast">
+  <div class="entry-head"><h3><span class="id">7.2</span>Backcasting: predict the past from the present</h3><span class="pill rejected">Closed</span><span class="effect">backward stream −0.0049 / −0.0112 vs its equal-timing forward twin; pseudo-past = a "30 zeros" control</span></div>
+  <div><p>The owner's idea. (B) Run a model of normal dynamics backward: if recent points come from a new process, backcasting the past from them should go wrong. (A) Prepend a backcast "pseudo-past" so statistics react sooner. Tested linear and neural, against forward twins and controls.</p></div>
+  <div class="math">
+  <p>For a stationary Gaussian process \((z_1,\dots,z_n)\overset{d}{=}(z_n,\dots,z_1)\), so forward and backward residuals have the same law; only irreversibility could add anything, and it measured 0.52.</p></div>
+  <div class="why"><b>Why it failed:</b> the series are time-reversible even for a nonlinear scale-aware model (backward and forward nets reach the same NLL), so backward evidence is the same, only K + 10 points late. The pseudo-past is a function of points already seen; its small gain matched the zeros control and did not replicate on other series.</div>
+</article>
+
+<article class="entry" data-v="rejected" id="a-emb">
+  <div class="entry-head"><h3><span class="id">7.3</span>Embedding drift: embed the history, watch the online embedding drift away</h3><span class="pill rejected">Closed</span><span class="effect">gate +0.004 (weak base) → trees: learned stats +0.0001 ± 0.0012 (2/5), CNN w128 +0.0001 (2/4)</span></div>
+  <div><p>The owner's idea. Embed windows with a dilated 1-D CNN trained contrastively on histories (two windows of the same series are positives), or a contrastive MLP on 15 window statistics, then read the cosine to a history anchor, its CUSUM, and a block BOCPD posterior. Alarm thresholds and an encoder sweep were tested too.</p></div>
+  <div class="math">
+  $$\mathcal L_{\text{InfoNCE}}=-\log\frac{\exp(\mathrm{sim}(a,p)/T)}{\sum_n\exp(\mathrm{sim}(a,n)/T)},\qquad d_t=1-\cos\big(f(\text{window}_t),\,\bar f_{\text{hist}}\big).$$</div>
+  <div class="why"><b>Why it failed:</b> the encoder learned series identity almost perfectly (retrieval 0.98–0.99) but drift was weak (single 0.55–0.56). An 8-fold gate "confirmed" +0.004, but its base lacked the 270 kernel features; in the real trees the gain vanished. A cosine to a history anchor compresses windowed variance, roughness and tail statistics the trees already see one by one. Alarm thresholds scored below the continuous scores at every setting: TS-AUC already ranks every threshold.</div>
+</article>
+
+<article class="entry" data-v="rejected" id="a-long">
+  <div class="entry-head"><h3><span class="id">7.4</span>Long-range structure: multi-scale variance and long memory</h3><span class="pill rejected">Rejected</span><span class="effect">oracle incremental −0.0025 (L 100), −0.0025 (L 300), +0.0065 ± 0.0047 (L 600, 1.4 SE)</span></div>
+  <div><p>Every dependence feature stops at about lag 16, so test slow structure: Lo–MacKinlay variance ratios at \(m=4\dots64\), the DFA exponent, low-frequency periodogram share, autocorrelation at lags 20/50, residual autocorrelation at lags 11–50, each against history windows of the same length.</p></div>
+  <div class="math">
+  $$\mathrm{VR}(m)=\frac{\mathrm{Var}\big(\sum_{i=1}^{m}\Delta x_{t+i}\big)}{m\,\mathrm{Var}(\Delta x_t)},\qquad F_{\text{DFA}}(n)\propto n^{\alpha}.$$</div>
+  <div class="why"><b>Why it failed:</b> the strongest statistic (VR at m = 4) correlates 0.77–0.80 with lag-1 autocorrelation; longer scales score 0.50–0.55. The only hint needs 600 post-break points, i.e. steps 600+ (a few percent of the metric weight). With this, the "properties of the points" list is closed: level, scale, shape, short and long dependence, nonlinear dependence, joint behaviour, motifs, entropy.</div>
+</article>
+
+<article class="entry" data-v="pending" id="a-eq">
+  <div class="entry-head"><h3><span class="id">7.5</span>Equation check: is there a data-generating equation left to learn?</h3><span class="pill pending">R1, R2 closed · R3 open</span><span class="effect">R1 MSE +0.78% (worse); R2 +0.0002 nats; R3 F2 +0.0037 ± 0.0049 (4/5), F3l +0.0048 ± 0.0036 (4/5)</span></div>
+  <div><p>The owner's idea: learn the equations that generate the history, then compare online points with them. For a noisy series the equation is a conditional distribution, which the models already hold (AR(10) + frozen GARCH; the NBM). So the question is only whether a <em>richer</em> equation exists. Three parts, on 5,000 held-out histories:</p></div>
+  <div class="math">
+  $$x_t=f(x_{&lt;t})+g(x_{&lt;t})\,\varepsilon_t:\quad \text{R1: richer } f;\quad \text{R2: richer one-step density};\quad \text{R3: better frozen forecast of the online variance}.$$</div>
+  <div class="why"><b>Results:</b> R1: an 11-term nonlinear mean made out-of-sample error worse (+0.78%). R2: an extended GARCH-t with leverage, level and slow components gained +0.0002 nats per point; the NBM matches GARCH-t once both get per-series tail shapes, so the NBM is not a better equation (see 6.1). R3: a per-series multi-scale (HAR-type) forecast (F2) and a ridge learned across series (F3l) passed the written rule on single-feature TS-AUC, but only at 0.75 and 1.3 SE, and they barely reduce the no-break spread. <b>Open:</b> build them as <code>vol_</code>-style columns and run the paired test after <code>multi4</code>; expected 0 to +0.002 in the trees.</div>
+</article>
+
+<article class="entry" data-v="rejected" id="a-pc">
+  <div class="entry-head"><h3><span class="id">7.6</span>Pair-classifier scan: "is this whole online window post-break?"</h3><span class="pill rejected">Rejected</span><span class="effect">gate GO (pc_smax 0.613 single); trees −0.0001 ± 0.0020 (2/5): folds −0.0032, −0.0001, −0.0054, +0.0053, +0.0032</span></div>
+  <div><p>The leader (0.717 public) won the 2025 offline edition with brute-force two-segment comparisons and boosting. This edition's labels give one pattern per series; the 2025-style task gives many: for a window of L online points, is the <em>whole</em> window post-break? A LightGBM on 33 window-vs-history statistics (no position, no history descriptors) runs as a scan over suffix windows (L = 16–256) and over 32-point blocks accumulated across break times. Pairs are weighted within (L, end-step) cells, and classifiers are cross-fitted so training rows are never scored by a model that saw them (without that, single-feature AUC inflated by +0.03 to +0.046).</p></div>
+  <div class="math">
+  $$\ell_b=\mathrm{logit}\,c(\text{block}_b)\approx\log\frac{f_{\text{post}}}{f_{\text{pre}}},\qquad S_j=\sum_{b\ge j}\ell_b,\qquad O_t=\frac{\sum_j\pi_j e^{S_j}}{\Pi(\tau>t)}.$$</div>
+  <div class="why"><b>Why it failed</b> <span class="tag h">H</span>: held-out pair AUC rose from 0.56 (16 points) to 0.65 (256), and <code>pc_smax</code> ranked 3rd by gain in the trees, yet the paired result was zero. The window t-statistics are the same quantities the kernel's windows and scans already measure, so the trees routed splits through the new column without new information. The planned variants (7 leaves, accumulation-only) were only for a narrow miss, which this was not.</div>
+</article>
+
+<h2><span class="num">8</span>Training-target tweaks</h2>
+
+<article class="entry" data-v="rejected" id="a-near">
+  <div class="entry-head"><h3><span class="id">8.1</span>Down-weighting rows just after the break</h3><span class="pill rejected">Rejected</span><span class="effect">k = 10: −0.0007 ± 0.0004 (1/5); headline 0.6409 vs 0.6417</span></div>
+  <div><p>In the first 10 points after a break, positives score 0.528, close to label noise: nothing measurable has changed yet. So ramp their training weight up from near zero (scoring unchanged): \(w'_{i,t}=w_{i,t}\,(d+1)/(K+1)\) for \(d=t-\tau_i&lt;K\), renormalised per step.</p></div>
+  <div class="why"><b>Why it failed</b> <span class="tag h">H</span>: the trees already handle these rows; down-weighting them throws away some real early signal. The k = 30 follow-up was not worth running.</div>
+</article>
+
+<article class="entry" data-v="pending" id="a-lratio">
+  <div class="entry-head"><h3><span class="id">8.2</span>Learned per-point density ratio ("learned CUSUM")</h3><span class="pill pending">Closed by analogy, never run</span><span class="effect">build run: point AUC 0.51–0.54 per fold; best single feature 0.555 (BOCPD 0.605)</span></div>
+  <div><p>Instead of assuming the post-break distribution, train a classifier on labelled points (before vs after the break, with lags and local volatility) and accumulate its log-odds over candidate break times like BOCPD: \(r_s\approx\log f_1(\mathbf x_s)/f_0(\mathbf x_s)\), \(O_t=\sum_j\pi_j\exp(\sum_{s\ge j}r_s)/\Pi(\tau>t)\).</p></div>
+  <div class="why"><b>Status:</b> closed without a run. Single points carry very little signal (point AUC about 0.53), so the accumulated features are weak, and the pair classifier (7.6), the same idea at window level, gave nothing in the trees.</div>
+</article>
+
+<footer>Compiled 2026-10-16 from <code>HANDOFF.md</code> (sections 1–41) and the result files in <code>cv_out/</code> and <code>diagnostics/</code>. Where a result file was more complete than the handoff (near-break weights: 5 folds; embedding CNN: 4 folds), the file was used. Nothing here has been submitted to the platform. HTML source: <code>reports/strategy_ledger.html</code>.</footer>
+</div>
+<!-- Regenerate the PDF (PowerShell):
+& "C:\Program Files\Google\Chrome\Application\chrome.exe" --headless=new --disable-gpu --no-pdf-header-footer --virtual-time-budget=20000 --print-to-pdf="reports\Strategy_Ledger_2026-10-16.pdf" "reports\strategy_ledger.html"
+-->
+</body>
+</html>

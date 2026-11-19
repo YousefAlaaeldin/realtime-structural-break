@@ -1,0 +1,28 @@
+settings: {'ext_dir': 'C:\\Users\\youse\\R projects\\AIDA breakpoint detection benchmark\\data\\ext2025', 'ext': 1, 'ext_seed': 0, 'ext_hmin': 1000, 'clip': 10.0, 'window': 1000, 'smoke': False, 'out': ''}
+10,000 Real-Time histories, 9,978 2025 cuts (break rate 0.291); history length median 2998 vs 1416 (not a classifier input); statistics in 15s
+
+domain classifier (cross-fitted): AUC 0.948  (0.5 = same population)
+weights: clipped 41 of 9,978 at 10; quantiles 10/50/90/99% [ 0.04   0.199  2.917 11.441]; share of weight in the top 10% of series 0.62
+EFFECTIVE SAMPLE SIZE of the weighted 2025 set: 1,694 of 9,978 series (16.9% of the Real-Time data)
+2025 break rate: unweighted 0.291, weighted 0.289  (Real-Time 0.497)
+
+balance check, mean of each statistic: Real-Time | 2025 unweighted | 2025 weighted  (gap closed)
+  sd               0.9822 |    0.9712 |    0.9765   (+49%)
+  skew             0.0647 |    0.2753 |    0.1551   (+57%)
+  kurt             3.0999 |    9.0681 |    4.0974   (+83%)
+  tail2            0.0436 |    0.0482 |    0.0455   (+59%)
+  tail3            0.0049 |    0.0118 |    0.0053   (+93%)
+  tail4            0.0012 |    0.0044 |    0.0011   (+97%)
+  ac1              0.0696 |    0.0128 |    0.0666   (+95%)
+  ac2              0.0690 |    0.0035 |    0.0406   (+57%)
+  ac5              0.0057 |   -0.0057 |   -0.0008   (+43%)
+  ac2_1            0.1158 |    0.1261 |    0.0867   (-180%)
+  ac2_5            0.0370 |    0.0643 |    0.0246   (+55%)
+  ac2_20           0.0127 |    0.0408 |    0.0151   (+92%)
+  sd_logvar100     0.2501 |    0.4852 |    0.2598   (+96%)
+  ar5_resvar       0.8441 |    0.9685 |    0.9426   (+21%)
+
+GATE (written before any run): domain AUC >= 0.60 AND ESS >= 1,000
+  -> PASS: run the cv.py commands in HANDOFF section 19
+saved C:\Users\youse\R projects\AIDA breakpoint detection benchmark\data\ext2025\ext_weights_e1_s0_h1000.npz
+done in 19s

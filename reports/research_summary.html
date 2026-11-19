@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Structural Break Research Summary</title>
+<style>
+  @page { size: A4; margin: 18mm 17mm 18mm 17mm; }
+  :root { --ink:#1d2433; --soft:#5a6475; --line:#d9dee7; --accent:#1f5fbf; --accent2:#c2410c; --good:#15803d; --bad:#b91c1c; --bg:#ffffff; --tint:#f3f6fb; }
+  body { font-family: "Segoe UI", Calibri, Arial, sans-serif; color: var(--ink); background: var(--bg); font-size: 10.6pt; line-height: 1.5; margin: 0; }
+  h1 { font-size: 24pt; margin: 0 0 4pt; color: var(--accent); }
+  h2 { font-size: 15pt; color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 3pt; margin-top: 22pt; page-break-after: avoid; }
+  h3 { font-size: 12pt; margin: 14pt 0 4pt; page-break-after: avoid; }
+  p { margin: 5pt 0; }
+  .sub { color: var(--soft); font-size: 11pt; }
+  .level { display:inline-block; font-size: 8pt; font-weight: 700; letter-spacing: .05em; padding: 1pt 6pt; border-radius: 8pt; margin-left: 6pt; vertical-align: middle; }
+  .l1 { background:#dcfce7; color:#166534; } .l2 { background:#fef9c3; color:#854d0e; } .l3 { background:#fee2e2; color:#991b1b; }
+  .box { background: var(--tint); border-left: 4px solid var(--accent); padding: 7pt 10pt; margin: 9pt 0; page-break-inside: avoid; }
+  .box.warn { border-left-color: var(--accent2); background:#fff7ed; }
+  .box.good { border-left-color: var(--good); background:#f0fdf4; }
+  table { border-collapse: collapse; width: 100%; margin: 7pt 0; font-size: 9.6pt; page-break-inside: avoid; }
+  th, td { border: 1px solid var(--line); padding: 4pt 6pt; text-align: left; vertical-align: top; }
+  th { background: var(--tint); }
+  td.num { text-align: right; white-space: nowrap; }
+  .yes { color: var(--good); font-weight: 600; } .no { color: var(--bad); font-weight: 600; } .maybe { color: var(--accent2); font-weight: 600; }
+  code { font-family: Consolas, monospace; font-size: 9pt; background: #eef1f6; padding: 0 3pt; border-radius: 3pt; }
+  .cover { page-break-after: always; padding-top: 40mm; }
+  .toc li { margin: 2pt 0; }
+  .pb { page-break-before: always; }
+  figure { margin: 8pt 0; text-align: center; page-break-inside: avoid; }
+  figcaption { font-size: 9pt; color: var(--soft); }
+  .idea { border: 2px solid var(--accent); border-radius: 6pt; padding: 8pt 12pt; margin: 10pt 0; }
+  .idea h3 { margin-top: 2pt; color: var(--accent); }
+  ol li, ul li { margin: 2pt 0; }
+  .small { font-size: 8.8pt; color: var(--soft); }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>Detecting Structural Breaks in Real Time</h1>
+  <p class="sub">Research summary for the ADIA Lab Structural Break Challenge, Real-Time Edition<br>
+  What the problem is, what the research field offers, what we and others tried, and two new model ideas</p>
+  <p class="sub">13 October 2026</p>
+  <div class="box">
+    <b>How to read this.</b> The document goes from simple to complex. Each section is tagged
+    <span class="level l1">BASIC</span> <span class="level l2">INTERMEDIATE</span> or <span class="level l3">ADVANCED</span>.
+    Sections 1 to 3 need no maths. Sections 4 to 6 explain the research and our evidence. Section 7 presents two new
+    models in enough detail to build them.
+  </div>
+  <h3>Contents</h3>
+  <ol class="toc">
+    <li>The problem in plain words</li>
+    <li>How a break detector works: from one number to a learned model</li>
+    <li>Where we stand</li>
+    <li>The research field: six families of methods</li>
+    <li>What other competitors did</li>
+    <li>What our own data says (error breakdown)</li>
+    <li>Two new model ideas</li>
+    <li>Recommended plan and honest expectations</li>
+    <li>Glossary and sources</li>
+  </ol>
+  <div class="box good">
+    <b>One-paragraph summary.</b> No single method from the literature will close the gap to the top 10 on its own.
+    The evidence (our learning curve, our error breakdown and the public write-ups) points to two levers. The first is
+    <b>more real training data</b>: we now have the 2025 edition's 10,000 series, already wired into our code. The second
+    is <b>a better model of how break-free series behave</b>, because break-free series drift as much as a typical break.
+    The two new models in Section 7 target the second lever. Model A makes a volatility model fitted on the history the
+    yardstick for the online data. Model B is a learned network that compares the recent data with the series' own history.
+  </div>
+</div>
+
+<!-- =============================================================== 1 -->
+<h2>1. The problem in plain words <span class="level l1">BASIC</span></h2>
+<p>Each series is a sequence of numbers, for example the daily returns of an asset. It comes in two parts:</p>
+<ul>
+  <li><b>History</b> (1,000 to 5,000 points): given all at once, and guaranteed to have <i>no</i> break.</li>
+  <li><b>Online segment</b> (10 to 999 points): revealed one point at a time. In half of the series, the way the
+  numbers are generated changes somewhere in this part. That change is the <b>structural break</b>.</li>
+</ul>
+<p>After every new point we must output a score: <i>"how likely is it that the break has already happened?"</i></p>
+
+<figure>
+<svg viewBox="0 0 640 150" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial" font-size="11">
+  <rect x="10" y="20" width="390" height="70" fill="#eef3fb" stroke="#9db4dc"/>
+  <rect x="400" y="20" width="230" height="70" fill="#fff4ea" stroke="#e5a877"/>
+  <polyline fill="none" stroke="#1f5fbf" stroke-width="1.2" points="15,55 25,50 35,58 45,52 55,57 65,49 75,56 85,53 95,58 105,51 115,55 125,52 135,57 145,50 155,56 165,53 175,58 185,51 195,55 205,49 215,57 225,52 235,56 245,50 255,55 265,53 275,58 285,51 295,56 305,52 315,57 325,50 335,55 345,53 355,58 365,51 375,55 385,52 395,56"/>
+  <polyline fill="none" stroke="#1f5fbf" stroke-width="1.2" points="400,54 410,51 420,57 430,52 440,56 450,53 460,55 470,51"/>
+  <polyline fill="none" stroke="#c2410c" stroke-width="1.4" points="480,40 490,68 500,45 510,70 520,38 530,66 540,44 550,72 560,41 570,65 580,47 590,71 600,39 610,67 620,46"/>
+  <line x1="478" y1="12" x2="478" y2="98" stroke="#c2410c" stroke-dasharray="4,3"/>
+  <text x="150" y="14" fill="#1d2433">history (no break, seen at once)</text>
+  <text x="430" y="14" fill="#1d2433">online (one point at a time)</text>
+  <text x="482" y="110" fill="#c2410c">break: variance grows</text>
+  <text x="15" y="130" fill="#5a6475">The model must notice the change from the online points alone, as soon as possible,</text>
+  <text x="15" y="144" fill="#5a6475">without ever seeing the future, and must not "see" breaks in series that have none.</text>
+</svg>
+<figcaption>Figure 1. One series. Here the break raises the variance, the most common visible kind in this data.</figcaption>
+</figure>
+
+<h3>How we are scored</h3>
+<p>At each online step (step 1, step 2, …) the platform takes all series that are still running and asks: <i>do the
+series that already had their break get higher scores than those that did not?</i> That is an <b>AUC</b> at each step (0.5 = coin
+flip, 1.0 = perfect). These are averaged over steps, with most weight on steps 100 to 700. The metric is called
+<b>TS-AUC</b> (time-stratified AUC). Two consequences:</p>
+<ul>
+  <li>Only the <b>ranking between series at the same step</b> matters. The absolute score value does not.</li>
+  <li>A score must be <b>comparable across very different series</b>: calm ones, wild ones, trending ones.</li>
+</ul>
+
+<h3>Why it is hard</h3>
+<ul>
+  <li><b>The breaks are subtle.</b> Even if you knew exactly where the break was and looked at 300 points after it, the
+  best single simple statistic separates break from no-break series only about 60% of the time.</li>
+  <li><b>Normal series drift on their own.</b> Their variance can swing by 50% with no break at all, which looks just like a break.</li>
+  <li><b>About 30% of breaks change nothing measurable</b> (finding of another competitor; our own check found 4.4%
+  that change none of five simple properties). Nobody can detect those, so no score reaches 1.0.</li>
+</ul>
+
+<!-- =============================================================== 2 -->
+<h2>2. How a break detector works: from one number to a learned model <span class="level l1">BASIC</span> → <span class="level l2">INTERMEDIATE</span></h2>
+<p>Every method in the field is a variation of one idea: <b>compare the recent data with the history and measure how
+surprising the difference is.</b> The methods differ in <i>what</i> they compare, <i>how</i> they turn it into a number,
+and <i>who</i> decides the rule: a statistician or a learning algorithm.</p>
+
+<table>
+<tr><th style="width:24%">Step up the ladder</th><th>Idea in plain words</th><th style="width:28%">Example</th></tr>
+<tr><td><b>1. A summary number</b></td><td>Compute something like the variance of the last 100 points and compare it with the history's variance.</td><td>"Recent variance is 1.6× the history's"</td></tr>
+<tr><td><b>2. Accumulating evidence</b></td><td>Keep a running total of "surprise" that grows while the data looks unusual and resets towards zero when it looks normal. It catches small but persistent changes.</td><td>CUSUM, Shiryaev-Roberts</td></tr>
+<tr><td><b>3. Scanning all start times</b></td><td>We do not know when the break began, so try every possible start and keep the most surprising one.</td><td>GLR scan statistic</td></tr>
+<tr><td><b>4. Many alternatives at once</b></td><td>A break could change the variance, the tails, the dependence and more. Test each kind and combine them with probabilities.</td><td>Bayesian model averaging</td></tr>
+<tr><td><b>5. A learned combiner</b></td><td>Compute hundreds of such statistics and let a machine-learning model learn how to weigh them from labelled examples.</td><td>Gradient-boosted trees (our XGBoost)</td></tr>
+<tr><td><b>6. A learned detector</b></td><td>Feed (lightly processed) raw data to a neural network and let it learn its own statistics.</td><td>Our GRU; TCNs; transformers</td></tr>
+</table>
+<p>Our current system already uses every rung of this ladder. That is why "another statistic" or "another
+model of the same kind" now gives only tiny gains. The research question becomes: <b>what information or structure
+is still missing?</b></p>
+
+<!-- =============================================================== 3 -->
+<h2>3. Where we stand <span class="level l1">BASIC</span></h2>
+<table>
+<tr><th>Component</th><th>What it is</th><th class="num">CV TS-AUC</th></tr>
+<tr><td>Trees (XGBoost)</td><td>270 streaming statistics (scans, CUSUMs, tails, dependence), + 6 evidence features, + re-cut augmentation</td><td class="num">0.6267</td></tr>
+<tr><td>GRU (2 seeds)</td><td>Recurrent network on whitened data + top 20 statistics, + re-cut augmentation</td><td class="num">0.6241</td></tr>
+<tr><td><b>Blend</b></td><td>50/50 average of the two</td><td class="num"><b>0.6345</b></td></tr>
+</table>
+<p>Leaderboard for reference: 1st 0.717, 20th 0.663, 50th 0.648. Platform scores run about 0.016 to 0.020 <i>below</i>
+cross-validation (measured by another team with an almost identical pipeline). Our 0.6345 would therefore land near
+0.615 to 0.62 on the board. A top-10 place needs roughly 0.67 on the board, so about 0.69 in our CV.</p>
+
+<h3>What worked and what did not</h3>
+<table>
+<tr><th>Tried</th><th>Result</th><th>Lesson</th></tr>
+<tr><td>Boundary re-cut augmentation (real data, new cut points)</td><td class="yes">+0.009 trees, +0.006 to +0.009 GRU</td><td>More <i>real</i> examples help</td></tr>
+<tr><td>Likelihood-ratio evidence features (14 break types)</td><td class="maybe">+0.003 (borderline)</td><td>Mostly duplicates what we have</td></tr>
+<tr><td>Synthetic breaks injected into real histories</td><td class="no">−0.002 to −0.003</td><td>Fake breaks do not look like the real ones</td></tr>
+<tr><td>Ranking losses (LambdaRank, pairwise)</td><td class="no">−0.001 to −0.017</td><td>Weighted classification already matches the metric</td></tr>
+<tr><td>Bigger / deeper GRUs, learned input gates</td><td class="no">−0.006 to +0.000</td><td>The GRU is data-limited, not size-limited</td></tr>
+<tr><td>Smoothing scores over time, extra history descriptors, SVMs</td><td class="no">no gain</td><td></td></tr>
+<tr><td>Learning curve (25% → 50% → 100% of data)</td><td>0.595 → 0.613 → 0.627</td><td><b>Doubling the data ≈ +0.015</b></td></tr>
+</table>
+
+<!-- =============================================================== 4 -->
+<h2 class="pb">4. The research field: six families of methods <span class="level l2">INTERMEDIATE</span> → <span class="level l3">ADVANCED</span></h2>
+<p>A deep search covered about 20 primary sources from 2019 to 2026 (papers, official rules, public competition write-ups). Every literature claim
+was checked by three independent verifiers. Below, each family gets an explanation, its evidence and a verdict for this competition.</p>
+
+<h3>4.1 Classical sequential detection (CUSUM, Shiryaev-Roberts, GLR, BOCPD)</h3>
+<p><b>Idea.</b> Assume a model for "before" and a model for "after", and accumulate the log-likelihood ratio point by point. CUSUM
+takes the maximum over start times, Shiryaev-Roberts the sum. Bayesian online change-point detection (BOCPD) keeps a
+probability for every possible "time since the break".</p>
+<p><b>Status here.</b> This is what our features already are. Conformal martingales and "e-detectors", the newer
+assumption-free versions, turn out to be essentially our CUSUM/SR on ECDF ranks (verified).
+<b>Verdict:</b> <span class="no">already exhausted</span>.</p>
+
+<h3>4.2 Kernel two-sample tests (MMD, Scan-B, kernel CUSUM, random-Fourier-feature MMD)</h3>
+<p><b>Idea in plain words.</b> Instead of comparing a few summary numbers (mean, variance…), compare the <i>whole
+distribution</i> of the recent points with that of the history. MMD (maximum mean discrepancy) measures the distance
+between two clouds of points through a similarity "kernel". It sees changes of <i>shape</i> that moments miss.</p>
+<p><b>Evidence (verified).</b> When the distribution changes from Gaussian to Laplace with the same mean and variance, a kernel
+scan detected it with power 0.44, against 0.03 to 0.04 for mean and Gaussian tests and 0.24 for the best moment-based CUSUM
+(i.i.d. simulation). A 2025 method (random-Fourier-feature MMD) does this online for only O(r log n) work per step by testing
+split points at powers of two.</p>
+<p><b>Caveats.</b> The theory assumes independent data, which our autocorrelated series are not. Applied to single values it
+only sees the marginal distribution: to see dependence it must be run on <i>pairs</i> (x<sub>t</sub>, x<sub>t−1</sub>) or
+differences. Its null variance differs from series to series, which is fatal for a cross-series ranking unless
+each series is calibrated on its own history.
+<b>Verdict:</b> <span class="maybe">promising for shape/dependence breaks, probably +0.003 to +0.005</span>. It is the base of Model B.</p>
+
+<h3>4.3 Learned test statistics and density-ratio estimation</h3>
+<p><b>Idea.</b> Instead of choosing the statistic by hand, train a neural network to tell "history" from "recent" data.
+If it can, there was a change. The classifier's output estimates the <i>log density ratio</i>, the ideal ingredient for
+CUSUM. Variants: NN-CUSUM, ONNC/ONNR, deep-kernel MMD trained to maximise test power, and RuLSIF/KLIEP (classical
+density-ratio estimators).</p>
+<p><b>Evidence (verified).</b> A 2024 discussion paper (Li, Fearnhead, Fryzlewicz &amp; Wang) proves that CUSUM is
+<i>exactly</i> a small ReLU network, so learned statistics contain the classical ones. In experiments they beat CUSUM under
+autocorrelated or heavy-tailed noise. They beat classical density ratios on covariance changes (F1 0.93 vs 0.85) but only tie
+on pure variance changes (0.97 vs 0.97). The guarantees assume training and test data come from the same distribution,
+which matches our bad experience with synthetic breaks.</p>
+<p><b>Verdict:</b> <span class="maybe">a structurally new angle if the network is built to compare against the series' own
+history</span>. This is Model B.</p>
+
+<h3>4.4 Time-series foundation models (Chronos, TimesFM, Moirai, MOMENT)</h3>
+<p><b>Idea.</b> Large pretrained forecasting models. Either use their forecast errors (a break makes forecasts worse) or
+their internal embeddings as features.</p>
+<p><b>Evidence (weak).</b> Two unreviewed 2026 preprints with split verifier votes. Embeddings helped on <i>weak</i> shifts in
+toy AR(1) windows but lost to simple statistics on strong ones. Forecast errors spike at a break, then fall back once
+the model adapts in-context, so they must be accumulated. One competitor gained +0.004 on the board from Chronos-2
+features, but that part needs a GPU when the model runs on the platform.
+<b>Verdict:</b> <span class="no">expensive, small, risky under the platform's CPU/time limits</span>.</p>
+
+<h3>4.5 Multiscale, spectral, signatures, state-space models, simulation-trained detectors</h3>
+<p>The search found <b>no verified evidence</b> for wavelets, path signatures, Mamba/S4 or detectors trained on simulated
+priors (PFN-style) for this kind of task. Our own synthetic-break experiment suggests simulation-trained detectors would
+suffer the same mismatch. <b>Verdict:</b> <span class="no">no evidence; low priority</span>.</p>
+
+<h3>4.6 Normal-behaviour models (model the "no break" world very well)</h3>
+<p><b>Idea.</b> Instead of modelling breaks, model the <i>normal</i> process precisely and flag deviations. Forecasting nets
+(NLinear, GRU) trained on histories, quantile networks giving the probability of each new point (PIT), and
+volatility models such as GARCH.</p>
+<p><b>Evidence.</b> One competitor gained +0.005 on the board from NLinear/GRU normal-behaviour models. Another gained +0.013
+on the board from a stream whitened by a "conditional scale" (read directly from their write-up). Our own analysis (Section 6) shows
+that normal drift is the main obstacle. <b>Verdict:</b> <span class="yes">most promising family for us</span>. This is Model A.</p>
+
+<!-- =============================================================== 5 -->
+<h2>5. What other competitors did <span class="level l2">INTERMEDIATE</span></h2>
+<p>No top-10 write-up exists yet (winners are announced 26 to 28 October 2026). The two public write-ups:</p>
+<table>
+<tr><th style="width:18%">Who</th><th>Approach</th><th>Key numbers (from their pages)</th></tr>
+<tr><td><b>bamasa</b><br>0.6299 board</td><td>Almost the same as ours: AR whitening, conditional scale, ECDF, CUSUM/GLR/SR, LightGBM rankers per step, causal TCNs.</td>
+<td>About 30% of breaks unmeasurable. CV-to-board drop −0.016 to −0.020. Whitened-stream member +0.0118 CV / <b>+0.013 board</b>. Boundary augmentation with early-break pseudo-series appears in their history (gain not stated).</td></tr>
+<tr><td><b>szukiyu40</b><br>0.6429 board</td><td>Stack of about 10 views: statistical trees and rankers, NLinear/GRU normal-behaviour models, Chronos-Bolt and Chronos-2 embeddings, Bayesian contrast, adaptive variance, TCNs.</td>
+<td>Board milestones: 62.07 → 63.61 (normal-behaviour models) → 63.69 (Chronos-Bolt) → 64.03 (adaptive variance + TCN) → 64.29. Each addition worth +0.001 to +0.015.</td></tr>
+<tr><td><b>2025 offline winners</b></td><td>Different task (break position known): stacks of trees on independently engineered feature blocks; two-sample test batteries (KS, Levene, F-test) on several transforms of the series.</td><td>The current Real-Time leader placed 2nd in 2025.</td></tr>
+</table>
+<div class="box">
+<b>Lesson.</b> Everyone near our level stacks more models of the same kind and gains a few thousandths each time. The
+two biggest single gains reported publicly both came from <b>changing what the model sees</b>: a better-normalised
+stream, and more or better training data.
+</div>
+<h3>Rules that matter (official FAQ, read directly)</h3>
+<ul>
+  <li>External data is allowed if you can license it. The 2025 dataset: <i>"Yes, but it is not officially encouraged."</i></li>
+  <li>The online length is withheld by design, and exploiting it would count as cheating.</li>
+  <li>Output must be deterministic. Compute is limited to 15 h per week. Recomputing everything at every step risks the time limit.</li>
+</ul>
+
+<!-- =============================================================== 6 -->
+<h2 class="pb">6. What our own data says <span class="level l2">INTERMEDIATE</span></h2>
+<p>We split the best blend's performance by the <i>kind</i> of change each break actually made (measured after the fact).</p>
+<figure>
+<svg viewBox="0 0 640 210" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial" font-size="11">
+  <line x1="200" y1="10" x2="200" y2="180" stroke="#9aa3b2"/>
+  <line x1="200" y1="180" x2="620" y2="180" stroke="#9aa3b2"/>
+  <!-- scale 0.5 -> 200, 0.9 -> 620 : 1050 px per unit -->
+  <line x1="252.5" y1="10" x2="252.5" y2="180" stroke="#e5e7eb" stroke-dasharray="3,3"/>
+  <text x="196" y="195">0.50</text><text x="296" y="195">0.60</text><text x="401" y="195">0.70</text><text x="506" y="195">0.80</text><text x="600" y="195">0.90</text>
+  <g fill="#c2410c">
+    <rect x="200" y="18" width="61.5" height="22"/><rect x="200" y="48" width="69" height="22"/><rect x="200" y="78" width="74.8" height="22"/>
+  </g>
+  <g fill="#1f5fbf">
+    <rect x="200" y="108" width="221.3" height="22"/><rect x="200" y="138" width="354" height="22"/>
+  </g>
+  <text x="10" y="33">variance fell > 26%</text><text x="268" y="33">0.559</text>
+  <text x="10" y="63">variance fell 10–26%</text><text x="276" y="63">0.566</text>
+  <text x="10" y="93">variance about the same</text><text x="282" y="93">0.571</text>
+  <text x="10" y="123">variance rose 10–35%</text><text x="428" y="123">0.711</text>
+  <text x="10" y="153">variance rose > 35%</text><text x="561" y="153">0.837</text>
+</svg>
+<figcaption>Figure 2. How well the current blend detects breaks, by what the break did to the variance (AUC against all break-free series).</figcaption>
+</figure>
+<p><b>Reading.</b> Breaks that raise the variance are caught well. The rest are barely caught. A check showed this
+is not a model failure: in break series, falls in variance are <i>no more common than in break-free series</i> (9 to 11% of
+break series fall below the break-free 10th percentile, which is chance). Breaks in this data mostly raise variance, and the
+other kinds of break are simply very faint.</p>
+
+<h3>The real obstacle: break-free series drift</h3>
+<ul>
+  <li>Over 100 points, the variance of a break-free series swings with a standard deviation of 0.41 in log units, about ±50%.
+  That is as large as a typical break.</li>
+  <li>This drift is <b>partly predictable from the end of the history</b>: the correlation with the variance of the last
+  200 history points is about 0.5. Calm histories stay calm for a while, and wild ones stay wild. This is <i>volatility clustering</i>.</li>
+  <li>Comparing online variance against the <i>end</i> of the history instead of its average improved a single variance
+  statistic by +0.015 to +0.03 (AUC, measured on early breaks, so the gain at steps 100 to 700 is probably smaller).</li>
+  <li>Our tree features compare everything with whole-history constants. The GRU sees only the last 100 history points.</li>
+</ul>
+
+<h3>Detection is slow</h3>
+<table>
+<tr><th>Points since the break</th><td>0–10</td><td>10–30</td><td>30–100</td><td>100–300</td><td>300+</td></tr>
+<tr><th>AUC vs break-free</th><td>0.528</td><td>0.561</td><td>0.607</td><td>0.661</td><td>0.698</td></tr>
+</table>
+
+<h3>The 2025 data (now in <code>data\ext2025</code>)</h3>
+<p>10,001 labelled series, <b>none</b> shared with the Real-Time set, and 9,978 can be cut into the Real-Time shape without
+leaking the label. But it is a different mix: 58% heavy-tailed (vs 15%), few strongly autocorrelated series (6% vs 26%),
+a break rate of 29% (vs 50%), and breaks of similar strength at 100 points but fainter at 300. Cross-validation will decide
+(the commands are in the HANDOFF, section 15.4).</p>
+
+<!-- =============================================================== 7 -->
+<h2 class="pb">7. Two new model ideas <span class="level l3">ADVANCED</span></h2>
+<p>Both ideas change <b>what the model compares against</b>, the lever the evidence points to, instead of adding another
+model of the same kind. Each can be tested in a day or two with our existing CV machinery.</p>
+
+<div class="idea">
+<h3>Model A: "Volatility-anchored detector" (a normal-behaviour model of the variance path)</h3>
+<p><b>The intuition.</b> Today we ask "is the recent variance unusual compared with the history <i>on average</i>?". But a
+series whose history ended in a calm spell will naturally drift back up, and that looks like a break. Model A asks the better
+question: <i>"is the recent variance unusual compared with what this series' own volatility dynamics predicted?"</i></p>
+
+<p><b>How it works.</b></p>
+<ol>
+  <li><b>Fit a volatility model on the history only.</b> Use GARCH(1,1) with Student-t errors on the AR(10) residuals
+  e<sub>t</sub> we already compute: σ²<sub>t</sub> = ω + α·e²<sub>t−1</sub> + β·σ²<sub>t−1</sub>. Three numbers per series. It can be
+  fitted by a short deterministic optimisation, or by a fixed grid over (α, β) with ω set by the long-run variance, which is fast in numba.</li>
+  <li><b>Frozen forecast path (the "anchor").</b> From the last history point, the model predicts the variance k steps ahead:
+  σ̂²(k) = σ̄² + (α+β)<sup>k</sup>·(σ²<sub>T</sub> − σ̄²). It starts at the end-of-history level and decays to the long-run
+  level. It is <b>never updated with online data</b>, so it cannot absorb a break.</li>
+  <li><b>Anchored stream.</b> u<sub>t</sub> = e<sub>t</sub> / σ̂(t). Under "no break", u is close to standard. After a variance break it is not.
+  Run our existing machinery (CUSUM, Shiryaev-Roberts, scans, tail counts) on u, u² and log|u| instead of on e.</li>
+  <li><b>Second stream: online-updated GARCH.</b> Keep updating σ²<sub>t</sub> online with the history's parameters and compute
+  the standardized residual z<sub>t</sub> = e<sub>t</sub>/σ<sub>t</sub>. After a break, the GARCH filter <i>misfits</i>: its forecast errors
+  of e² and the tail frequency of z shift, and its dependence signature changes. This is close to the "conditional scale whitening"
+  that gave another team +0.013 on the board.</li>
+  <li><b>Feed both.</b> Add the anchored statistics as about 20 to 30 new tree features, and u<sub>t</sub>, u²<sub>t</sub>−1 and z<sub>t</sub> as three new GRU
+  channels. Optionally train a separate member on the anchored stream only and blend it in.</li>
+</ol>
+<table>
+<tr><th>Why it should help</th><th>Risks</th></tr>
+<tr><td>Targets the measured main obstacle (normal drift). Uses volatility clustering, which is strong in this data. Backed by our
+oracle test (+0.015 to +0.03) and a competitor's board gain (+0.013). Cheap: O(1) per point.</td>
+<td>GARCH may fit poorly on near-unit-root or very heavy-tailed series (use robust starting values and clip α+β ≤ 0.995). The gain may
+mostly duplicate what the GRU already learns from its 100-point warm-up, so the paired test decides.</td></tr>
+</table>
+<p><b>First experiment (1 day).</b> (1) Oracle check: rerun <code>diagnostics/null_spread.py</code> with the GARCH anchor at all break
+positions. (2) Add the three GRU channels and run both seeds against <code>oof_gru_aug2(_s1)</code>. (3) Add the kernel increments and run
+the trees against <code>oof_aug2_evc</code>. Keep it only if the usual rule passes: paired ≥ +0.003, above 2 standard errors, at least 4 of 5 folds.</p>
+</div>
+
+<div class="idea">
+<h3>Model B: "History-vs-recent comparator network" (a learned two-sample test)</h3>
+<p><b>The intuition.</b> Our GRU reads the series from left to right and must <i>discover by itself</i> that its job is to compare
+the recent data with the past. Model B builds that comparison into the architecture. A small network learns a "description"
+of short patches of data. The model then measures how far the description of recent patches has moved from the
+description of the history's patches. This is the learned version of the MMD kernel test (Section 4.2) and of the
+classifier two-sample tests (Section 4.3).</p>
+
+<figure>
+<svg viewBox="0 0 640 170" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial" font-size="10.5">
+  <rect x="10" y="20" width="160" height="40" fill="#eef3fb" stroke="#9db4dc"/><text x="18" y="44">history patches (16–32 pts)</text>
+  <rect x="10" y="100" width="160" height="40" fill="#fff4ea" stroke="#e5a877"/><text x="18" y="124">online patches</text>
+  <rect x="215" y="55" width="90" height="50" rx="6" fill="#e8f5ee" stroke="#5aa47a"/><text x="226" y="77">shared</text><text x="226" y="92">encoder φ</text>
+  <line x1="170" y1="40" x2="215" y2="70" stroke="#5a6475" marker-end="url(#a)"/><line x1="170" y1="120" x2="215" y2="92" stroke="#5a6475" marker-end="url(#a)"/>
+  <rect x="345" y="10" width="125" height="40" fill="#eef3fb" stroke="#9db4dc"/><text x="352" y="28">history mean &amp; spread</text><text x="352" y="42">of φ (computed once)</text>
+  <rect x="345" y="110" width="125" height="50" fill="#fff4ea" stroke="#e5a877"/><text x="352" y="128">running mean of φ over</text><text x="352" y="142">last 32, 64 … 512 points</text><text x="352" y="155">(dyadic suffixes)</text>
+  <line x1="305" y1="70" x2="345" y2="35" stroke="#5a6475" marker-end="url(#a)"/><line x1="305" y1="90" x2="345" y2="130" stroke="#5a6475" marker-end="url(#a)"/>
+  <rect x="505" y="55" width="125" height="50" rx="6" fill="#fdecec" stroke="#d27a7a"/><text x="513" y="75">standardised gaps</text><text x="513" y="90">→ small head → score</text>
+  <line x1="470" y1="30" x2="505" y2="70" stroke="#5a6475" marker-end="url(#a)"/><line x1="470" y1="135" x2="505" y2="92" stroke="#5a6475" marker-end="url(#a)"/>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L10,5L0,10z" fill="#5a6475"/></marker></defs>
+</svg>
+<figcaption>Figure 3. Model B: the same encoder describes history and recent patches, and the head scores how far apart they are.</figcaption>
+</figure>
+
+<p><b>How it works.</b></p>
+<ol>
+  <li><b>Patch encoder φ.</b> A tiny 1-D CNN or MLP (about 5k parameters) maps a patch of 16 to 32 consecutive whitened residuals
+  (plus differences, products e<sub>t</sub>e<sub>t−1</sub> and |e|) to a vector of 16 to 32 numbers. The same φ is shared by all series.</li>
+  <li><b>History reference.</b> Apply φ to all history patches once and store their mean μ<sub>H</sub> and standard deviation
+  s<sub>H</sub> per dimension. This also gives a <b>per-series null</b>: how much φ naturally varies <i>within this series</i>,
+  which is exactly the calibration that kernel tests lack.</li>
+  <li><b>Recent summaries.</b> Keep running means of φ over the last 32, 64, 128, 256 and 512 online points (dyadic suffixes,
+  as in the 2025 RFF-MMD paper), plus "everything since step 0".</li>
+  <li><b>Standardised gaps.</b> g<sub>s</sub> = (mean<sub>s</sub> − μ<sub>H</sub>) / (s<sub>H</sub>/√n<sub>s</sub>) for each scale s. Clipped, these feed
+  a small head (MLP or GRU over steps) that outputs the score. The max over scales plays the role of the scan over start times.</li>
+  <li><b>Training.</b> End to end with our metric-matched weighted cross-entropy, on the Real-Time series, the re-cut variants and the
+  2025 series. A learned φ can discover the shape and dependence changes our hand-made statistics miss. The architecture
+  guarantees the right comparison, so it needs far less data than a free-form GRU.</li>
+  <li><b>Non-learned warm-up version (cheap first step).</b> Replace φ with random Fourier features of (e<sub>t</sub>, e<sub>t−1</sub>)
+  and |e|-pairs. That gives online RFF-MMD features calibrated per series, which can be added to the trees in a few hours.</li>
+</ol>
+<table>
+<tr><th>Why it should help</th><th>Risks</th></tr>
+<tr><td>Structurally different from both current models, so it should blend well. Self-calibrates per series. Theory says such statistics
+contain CUSUM as a special case. The literature shows gains where dependence or heavy tails are involved, which are exactly our weak slices.
+Inference is O(1) per point per scale.</td>
+<td>The verified gains are on dependence/covariance changes, not pure variance changes (there it only ties), so it must <i>complement</i> the trees.
+Training needs care (the history reference must use only history patches; patches must not straddle the boundary).</td></tr>
+</table>
+<p><b>First experiment (2 days).</b> (1) The RFF-MMD feature version for the trees, paired against <code>oof_aug2_evc</code>.
+(2) The learned version as a third blend member, both seeds, then <code>blend.py</code> with all three.</p>
+</div>
+
+<!-- =============================================================== 8 -->
+<h2>8. Recommended plan and honest expectations <span class="level l2">INTERMEDIATE</span></h2>
+<table>
+<tr><th>#</th><th>Step</th><th>Effort</th><th class="num">Plausible gain (CV)</th></tr>
+<tr><td>1</td><td>Train with the 2025 data (<code>--ext 1</code>, then <code>--ext-rel 0.5</code> if flat). Already built.</td><td>hours of compute</td><td class="num">0 to +0.015</td></tr>
+<tr><td>2</td><td>Model A: volatility anchor (GRU channels + tree features)</td><td>1 day</td><td class="num">+0.003 to +0.01</td></tr>
+<tr><td>3</td><td>Model B, step 1: RFF-MMD features calibrated per series</td><td>0.5 day</td><td class="num">+0.002 to +0.005</td></tr>
+<tr><td>4</td><td>Model B, step 2: learned comparator network as a third blend member</td><td>2 days</td><td class="num">+0.003 to +0.01</td></tr>
+<tr><td>5</td><td>Cheap side test: re-cuts weighted towards early breaks</td><td>hours</td><td class="num">0 to +0.005</td></tr>
+<tr><td>6</td><td><b>Build the submission and submit once</b> to measure our real CV-to-board drop</td><td>1 day</td><td class="num">—</td></tr>
+</table>
+<div class="box warn">
+<b>Honest expectation.</b> If several of these work, CV could rise from 0.6345 to roughly 0.645 to 0.66, about 0.63 to 0.645 on the board.
+That would be top-50 territory, not top 10. The top-10 gap (about 0.69 CV) probably needs an insight about the data generator that
+nobody has published yet. The winners' write-ups after 26 to 28 October 2026 will be the best source for that. Gains under 0.003
+are within noise: always use paired, two-seed comparisons.
+</div>
+
+<!-- =============================================================== 9 -->
+<h2>9. Glossary and sources</h2>
+<table>
+<tr><th style="width:22%">Term</th><th>Meaning</th></tr>
+<tr><td>AUC / TS-AUC</td><td>Probability that a random break series scores above a random no-break series. TS-AUC averages it per online step.</td></tr>
+<tr><td>CUSUM / Shiryaev-Roberts</td><td>Running totals of evidence for a change. CUSUM keeps the best start time, SR sums over all start times.</td></tr>
+<tr><td>GLR scan</td><td>Test every possible break start and keep the strongest evidence.</td></tr>
+<tr><td>Whitening</td><td>Transforming the data so that, under "no break", it looks like independent standard noise (here: AR residuals, ECDF ranks).</td></tr>
+<tr><td>Volatility clustering / GARCH</td><td>Large moves follow large moves. GARCH predicts tomorrow's variance from today's.</td></tr>
+<tr><td>MMD</td><td>Maximum mean discrepancy: a distance between two distributions through a kernel. Zero only if they are equal.</td></tr>
+<tr><td>Density ratio</td><td>How much more likely a point is under "after" than under "before". A classifier separating the two estimates it.</td></tr>
+<tr><td>Re-cut augmentation</td><td>New training series made by moving the history/online boundary of real ones. The labels stay exact.</td></tr>
+<tr><td>Paired comparison</td><td>The same folds scored with and without a change. It removes the fold-to-fold noise.</td></tr>
+</table>
+<p class="small"><b>Sources.</b>
+CrunchDAO docs, Real-Time Edition (rules, FAQ): docs.crunchdao.com/competitions/competitions/structural-break-real-time ·
+CrunchDAO docs, 2025 challenge: docs.crunchdao.com/competitions/competitions/adia-lab-structural-break-challenge ·
+ADIA Lab Open Benchmark: adialab.ae/structural-break-open-benchmark ·
+Forum, online length withheld: forum.crunchdao.com/t/…/1180 ·
+bamasa write-up: github.com/bamasa/adia-structural-break ·
+szukiyu40 write-up: github.com/szukiyu40/adia-structural-break-realtime ·
+Li, Xie, Dai, Song, Scan-B statistic (arXiv 1507.01279) ·
+Wei &amp; Xie, online kernel CUSUM (arXiv 2211.15070) ·
+Kalinke &amp; Gavioli-Akilagun, RFF-MMD change detection (arXiv 2505.17789) ·
+Li, Fearnhead, Fryzlewicz &amp; Wang, automatic change-point detection with neural networks (arXiv 2211.03860) ·
+Gong, Lee, Cheng, Xie, NN-CUSUM (arXiv 2210.17312) ·
+Hushchyn, Arzymatov, Derkach, ONNC/ONNR (arXiv 2010.01388) ·
+Liu et al., deep-kernel two-sample tests (ICML 2020) ·
+Choi, Shook &amp; Dubrawski, TSFM embeddings for shifts (arXiv 2604.16428) ·
+Uray et al., TimesFM residuals (arXiv 2607.12454) ·
+Vovk, Testing Randomness Online (Statistical Science 2021).
+Internal evidence: HANDOFF.md sections 7, 12 to 15; diagnostics/*.py; cv_out/ext2025_check.txt.</p>
+
+</body>
+</html>

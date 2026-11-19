@@ -1,0 +1,33 @@
+# secrets
+.crunchdao/
+**/.crunchdao/
+# environments / caches
+.venv*/
+__pycache__/
+*.pyc
+.claude/
+*.code-workspace
+# competition data (not redistributable) and generated outputs
+Data/
+data/
+cv_out/
+bakeoff_*/
+eda_out/
+sim_out/
+prediction/
+resources*/
+submission/resources/
+verify_models/
+diagnostics/**/*.npy
+diagnostics/**/*.npz
+diagnostics/**/*.nbc
+diagnostics/**/*.nbi
+sbrt/**/*.nbc
+sbrt/**/*.nbi
+viz/data.js
+viz/derivative/
+*.npz
+*.parquet
+*.log
+*.bak
+*.md.bak

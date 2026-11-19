@@ -1,0 +1,279 @@
+settings: {'start': 'scratch', 'beam': 10, 'min_gain': 0.0002, 'max_add': 10, 'only': [], 'smoke': False, 'device': 'auto', 'batch': 48, 'out': 'C:\\Users\\youse\\R projects\\AIDA breakpoint detection benchmark\\diagnostics\\blend_search.txt'}
+74 candidate files (full 5-fold layout, no NaN); 1,682,129 rows; loaded in 6s
+current blend TS-AUC 0.648872 (sbrt.metric) vs 0.648872 (fast metric)
+GPU metric vs CPU metric on 8 blends: max |diff| 4.5e-09
+metric backend: GPU (batched)
+
+single-file TS-AUC (all rows):
+  0.6434  aug2_df_bo_nbm_bs24_ep25_LR015
+  0.6432  aug2_df_bo_nbm_bs24_ep25_FF08
+  0.6431  aug2_df_bo_nbm_bs24_ep25_pc
+  0.6430  aug2_df_bo_nbm_bs24_ep25_L63
+  0.6429  aug2_df_bo_nbm_bs24_ep25_s1
+  0.6424  aug2_df_bo_nbm_bs24_ep25_femb
+  0.6423  aug2_df_bo_nbm_bs24_ep25_ML8000
+  0.6421  aug2_df_bo_nbm_bs24_ep25_ms
+  0.6420  aug2_df_bo_nbm_bs24_ep25
+  0.6416  aug2_df_bo_nbm_bs24_ep25_eqf
+  0.6415  aug2_df_bo_nbm_bs24_ep25_L15
+  0.6411  aug2_df_bo_nbm_bs24_ep25_ML500
+  0.6404  aug2_df_bo_nbm_bs24_ep25_FF03
+  0.6380  aug2_df_bo
+  0.6379  svm_nbm
+  0.6375  aug2_df_bo_bo2
+  0.6359  aug2_tr05
+  0.6358  aug2_evc_vol_df_mmd
+  0.6356  aug2_evc_vol_df
+  0.6344  aug2_evc_vol
+  0.6339  gru_aug2_vol_bo_nbm
+  0.6332  aug2_evc_vol_dc
+  0.6329  svm
+  0.6329  svm_bo_g0.25
+  0.6328  svm_bo
+  0.6326  gru_aug2_vol_bo_nbm_auxtsb
+  0.6310  gru_aug2_vol_bo_nbm_s1
+  0.6293  aug2_df_bo_nbm_near10
+  0.6289  gru_aug2_vol_bo_s1
+  0.6282  tcn_aug2_vol_bo_nbm
+  0.6277  aug2_evc
+  0.6271  gru_aug2_vol_bo
+  0.6269  aug2_synth2nm_evf
+  0.6262  aug2_evc_ext1b
+  0.6257  aug2_synth2nd
+  0.6257  aug4_gpu
+  0.6251  aug2_gpu_ml6000
+  0.6248  gru_aug2_vol
+  0.6247  aug2_gpu
+  0.6234  aug2_synth2nm
+  0.6232  gru_aug2_vol_s2
+  0.6232  aug2_evc_ext1
+  0.6228  gru_aug2_vol_fall
+  0.6218  gru_aug2_vol_s3
+  0.6218  gru_aug2_vol_s1
+  0.6203  gru_cap_gate_static_s1
+  0.6193  gru_cap_l2_h96_s0
+  0.6191  gru_cap_gate_prior_s0
+  0.6183  gru_aug2
+  0.6179  gru_aug2_s1
+  0.6178  gru_cap_l2_h96_gate_static_s1
+  0.6176  gru_cap_gate_prior_s1
+  0.6176  gru_cap_l2_h96_s1
+  0.6170  gru_cap_l2_h128_s1
+  0.6165  gru_cap_l3_h96_s0
+  0.6164  gru_cap_gate_dynamic_s1
+  0.6160  gru_cap_l2_h128_s0
+  0.6158  gru_cap_gate_static_f40_s0
+  0.6158  loc
+  0.6155  xgb_base
+  0.6152  gru_cap_l2_h96_gate_static_s0
+  0.6151  gru_aug2_synth2nm_rl03
+  0.6150  gru_cap_gate_static_f40_s1
+  0.6149  gru_sw_2348ae47_cv5
+  0.6145  gru_cap_gate_static_s0
+  0.6145  loc_control
+  0.6145  submit_cfg
+  0.6138  gru_cap_l3_h96_s1
+  0.6132  gru_cap_gate_dynamic_s0
+  0.6130  gru_aug2_synth2nm
+  0.6115  fine
+  0.6103  gru_base_s1
+  0.6058  gru_sw_3d68afd5_cv5
+  0.5937  logreg
+
+[outer fold 0: search on the other 4 folds]
+  size 1 (single files): best 0.6395  aug2_df_bo_nbm_bs24_ep25_FF08 1.00
+  size 2 (all 2,701 pairs): best 0.6436 (+0.0041 vs best single)  aug2_df_bo_nbm_bs24_ep25_pc 0.60 + gru_aug2_vol_bo_nbm_s1 0.40  [34s]
+  addition 1 (blend of 3 files): best 0.6454 (+0.0018 vs peak)  aug2_df_bo_nbm_bs24_ep25_pc 0.48 + gru_aug2_vol_bo_nbm_s1 0.32 + gru_cap_gate_static_s1 0.20  [38s]
+  addition 2 (blend of 4 files): best 0.6462 (+0.0008 vs peak)  aug2_df_bo_nbm_bs24_ep25_pc 0.34 + gru_cap_gate_static_s1 0.24 + gru_aug2_vol_bo_nbm_s1 0.22 + aug2_df_bo_nbm_bs24_ep25_FF08 0.20  [42s]
+  addition 3 (blend of 5 files): best 0.6466 (+0.0005 vs peak)  aug2_df_bo_nbm_bs24_ep25_FF08 0.26 + aug2_df_bo_nbm_bs24_ep25_pc 0.25 + gru_cap_gate_static_s1 0.18 + gru_aug2_vol_bo_nbm_s1 0.17 + tcn_aug2_vol_bo_nbm 0.15  [46s]
+  addition 4 (blend of 6 files): best 0.6469 (+0.0003 vs peak)  aug2_df_bo_nbm_bs24_ep25_FF08 0.23 + aug2_df_bo_nbm_bs24_ep25_pc 0.22 + gru_cap_gate_static_s1 0.16 + gru_aug2_vol_bo_nbm_s1 0.15 + tcn_aug2_vol_bo_nbm 0.14 + svm_nbm 0.10  [50s]
+  addition 5 (blend of 7 files): best 0.6471 (+0.0002 vs peak)  aug2_df_bo_nbm_bs24_ep25_FF08 0.22 + aug2_df_bo_nbm_bs24_ep25_pc 0.21 + gru_cap_gate_static_s1 0.15 + gru_aug2_vol_bo_nbm_s1 0.14 + gru_aug2_vol_fall 0.10 + tcn_aug2_vol_bo_nbm 0.09 + svm_nbm 0.08  [54s]
+  stop: gain < 0.0002; peak 0.6469
+  HELD-OUT fold 0: current blend 0.6662 | searched blend 0.6652 (-0.0009) | best single file 0.6601
+
+[outer fold 1: search on the other 4 folds]
+  size 1 (single files): best 0.6464  aug2_df_bo_nbm_bs24_ep25_LR015 1.00
+  size 2 (all 2,701 pairs): best 0.6503 (+0.0039 vs best single)  gru_aug2_vol_bo_nbm 0.50 + aug2_df_bo_nbm_bs24_ep25_s1 0.50  [77s]
+  addition 1 (blend of 3 files): best 0.6520 (+0.0017 vs peak)  aug2_df_bo_nbm_bs24_ep25_s1 0.49 + gru_aug2_vol_bo_nbm 0.30 + gru_cap_gate_static_s1 0.21  [82s]
+  addition 2 (blend of 4 files): best 0.6528 (+0.0008 vs peak)  gru_aug2_vol_bo_nbm 0.32 + aug2_df_bo_nbm_bs24_ep25_s1 0.32 + aug2_df_bo_nbm_bs24_ep25_pc 0.20 + gru_cap_gate_static_s1 0.16  [86s]
+  addition 3 (blend of 5 files): best 0.6532 (+0.0004 vs peak)  aug2_df_bo_nbm_bs24_ep25_pc 0.27 + gru_aug2_vol_bo_nbm 0.25 + aug2_df_bo_nbm_bs24_ep25_s1 0.25 + gru_cap_gate_static_s1 0.13 + tcn_aug2_vol_bo_nbm 0.10  [90s]
+  addition 4 (blend of 6 files): best 0.6533 (+0.0002 vs peak)  aug2_df_bo_nbm_bs24_ep25_pc 0.24 + gru_aug2_vol_bo_nbm 0.23 + aug2_df_bo_nbm_bs24_ep25_s1 0.23 + gru_cap_gate_static_s1 0.11 + svm_nbm 0.10 + tcn_aug2_vol_bo_nbm 0.09  [94s]
+  stop: gain < 0.0002; peak 0.6532
+  HELD-OUT fold 1: current blend 0.6385 | searched blend 0.6379 (-0.0006) | best single file 0.6325
+
+[outer fold 2: search on the other 4 folds]
+  size 1 (single files): best 0.6439  aug2_df_bo_nbm_bs24_ep25_pc 1.00
+  size 2 (all 2,701 pairs): best 0.6481 (+0.0042 vs best single)  aug2_df_bo_nbm_bs24_ep25_pc 0.60 + gru_aug2_vol_bo_nbm 0.40  [117s]
+  addition 1 (blend of 3 files): best 0.6503 (+0.0022 vs peak)  aug2_df_bo_nbm_bs24_ep25_pc 0.49 + gru_aug2_vol_bo_nbm_s1 0.30 + gru_cap_gate_static_s1 0.21  [121s]
+  addition 2 (blend of 4 files): best 0.6509 (+0.0006 vs peak)  aug2_df_bo_nbm_bs24_ep25_pc 0.34 + gru_cap_gate_static_s1 0.24 + gru_aug2_vol_bo_nbm_s1 0.22 + aug2_df_bo_nbm_bs24_ep25_s1 0.20  [125s]
+  addition 3 (blend of 5 files): best 0.6512 (+0.0004 vs peak)  aug2_df_bo_nbm_bs24_ep25_pc 0.30 + gru_cap_gate_static_s1 0.22 + gru_aug2_vol_bo_nbm_s1 0.20 + aug2_df_bo_nbm_bs24_ep25_s1 0.18 + gru_aug2_vol_fall 0.10  [129s]
+  addition 4 (blend of 6 files): best 0.6516 (+0.0004 vs peak)  aug2_df_bo_nbm_bs24_ep25_pc 0.27 + gru_cap_gate_static_s1 0.19 + gru_aug2_vol_bo_nbm_s1 0.18 + aug2_df_bo_nbm_bs24_ep25_s1 0.16 + gru_aug2_vol_fall 0.10 + aug2_synth2nd 0.09  [134s]
+  addition 5 (blend of 7 files): best 0.6518 (+0.0002 vs peak)  aug2_df_bo_nbm_bs24_ep25_pc 0.24 + gru_cap_gate_static_s1 0.17 + gru_aug2_vol_bo_nbm_s1 0.16 + aug2_df_bo_nbm_bs24_ep25_s1 0.15 + gru_aug2_vol_bo_nbm 0.10 + aug2_synth2nd 0.09 + gru_aug2_vol_fall 0.08  [138s]
+  addition 6 (blend of 8 files): best 0.6519 (+0.0001 vs peak)  aug2_df_bo_nbm_bs24_ep25_pc 0.23 + gru_cap_gate_static_s1 0.17 + gru_aug2_vol_bo_nbm_s1 0.16 + aug2_df_bo_nbm_bs24_ep25_s1 0.14 + gru_aug2_vol_bo_nbm 0.10 + aug2_synth2nd 0.09 + gru_aug2_vol_fall 0.08 + aug2_df_bo_nbm_bs24_ep25_FF08 0.05  [142s]
+  stop: gain < 0.0002; peak 0.6518
+  HELD-OUT fold 2: current blend 0.6492 | searched blend 0.6459 (-0.0033) | best single file 0.6396
+
+[outer fold 3: search on the other 4 folds]
+  size 1 (single files): best 0.6423  aug2_df_bo_nbm_bs24_ep25_s1 1.00
+  size 2 (all 2,701 pairs): best 0.6470 (+0.0046 vs best single)  aug2_df_bo_nbm_bs24_ep25 0.60 + gru_aug2_vol_bo_nbm 0.40  [165s]
+  addition 1 (blend of 3 files): best 0.6481 (+0.0011 vs peak)  aug2_df_bo_nbm_bs24_ep25 0.51 + gru_aug2_vol_bo_nbm 0.34 + aug2_synth2nm 0.15  [169s]
+  addition 2 (blend of 4 files): best 0.6487 (+0.0006 vs peak)  aug2_df_bo_nbm_bs24_ep25 0.46 + gru_aug2_vol_bo_nbm 0.31 + aug2_synth2nm 0.14 + gru_cap_gate_static_s1 0.10  [173s]
+  addition 3 (blend of 5 files): best 0.6491 (+0.0004 vs peak)  aug2_df_bo_nbm_bs24_ep25 0.37 + gru_aug2_vol_bo_nbm 0.25 + svm_nbm 0.15 + aug2_synth2nd 0.13 + gru_cap_gate_static_s1 0.11  [177s]
+  addition 4 (blend of 6 files): best 0.6492 (+0.0002 vs peak)  aug2_df_bo_nbm_bs24_ep25 0.33 + gru_aug2_vol_bo_nbm 0.22 + svm_nbm 0.14 + aug2_synth2nd 0.11 + aug2_df_bo_nbm_bs24_ep25_s1 0.10 + gru_cap_gate_static_s1 0.10  [181s]
+  stop: gain < 0.0002; peak 0.6491
+  HELD-OUT fold 3: current blend 0.6544 | searched blend 0.6537 (-0.0007) | best single file 0.6486
+
+[outer fold 4: search on the other 4 folds]
+  size 1 (single files): best 0.6463  aug2_df_bo_nbm_bs24_ep25_LR015 1.00
+  size 2 (all 2,701 pairs): best 0.6507 (+0.0044 vs best single)  aug2_df_bo_nbm_bs24_ep25_s1 0.70 + gru_cap_gate_static_s1 0.30  [204s]
+  addition 1 (blend of 3 files): best 0.6525 (+0.0018 vs peak)  aug2_df_bo_nbm_bs24_ep25_s1 0.56 + gru_cap_gate_static_s1 0.24 + tcn_aug2_vol_bo_nbm 0.20  [209s]
+  addition 2 (blend of 4 files): best 0.6532 (+0.0007 vs peak)  aug2_df_bo_nbm_bs24_ep25_s1 0.48 + gru_cap_gate_static_s1 0.20 + tcn_aug2_vol_bo_nbm 0.17 + svm_nbm 0.15  [213s]
+  addition 3 (blend of 5 files): best 0.6535 (+0.0003 vs peak)  aug2_df_bo_nbm_bs24_ep25_s1 0.38 + tcn_aug2_vol_bo_nbm 0.17 + gru_cap_gate_static_s1 0.16 + aug2_df_bo_nbm_bs24_ep25_femb 0.15 + svm_nbm 0.14  [217s]
+  addition 4 (blend of 6 files): best 0.6540 (+0.0004 vs peak)  aug2_df_bo_nbm_bs24_ep25_s1 0.36 + gru_cap_gate_static_s1 0.16 + aug2_df_bo_nbm_bs24_ep25_femb 0.14 + tcn_aug2_vol_bo_nbm 0.13 + svm_nbm 0.11 + gru_aug2_vol_s2 0.10  [221s]
+  addition 5 (blend of 7 files): best 0.6541 (+0.0001 vs peak)  aug2_df_bo_nbm_bs24_ep25_s1 0.31 + gru_aug2_vol_s2 0.14 + gru_cap_gate_static_s1 0.13 + aug2_df_bo_nbm_bs24_ep25_femb 0.11 + tcn_aug2_vol_bo_nbm 0.11 + aug2_df_bo_nbm_bs24_ep25_pc 0.10 + svm_nbm 0.10  [225s]
+  stop: gain < 0.0002; peak 0.6540
+  HELD-OUT fold 4: current blend 0.6386 | searched blend 0.6365 (-0.0021) | best single file 0.6324
+
+==============================================================================================================
+NESTED (honest) gain of the scratch search vs the CURRENT blend, per held-out fold: -0.0009 -0.0006 -0.0033 -0.0007 -0.0021
+  mean -0.0015 +- 0.0005 (SE), 0/5 folds better;  current 0.6494 -> searched 0.6478 (mean of fold scores); searched vs best single file +0.0052
+  RULE (>= +0.0005, >= 4/5 folds, > 2 SE): FAIL
+  blend found per outer fold (stability):
+    fold 0: aug2_df_bo_nbm_bs24_ep25_FF08 0.23 + aug2_df_bo_nbm_bs24_ep25_pc 0.22 + gru_cap_gate_static_s1 0.16 + gru_aug2_vol_bo_nbm_s1 0.15 + tcn_aug2_vol_bo_nbm 0.14 + svm_nbm 0.10
+    fold 1: aug2_df_bo_nbm_bs24_ep25_pc 0.27 + gru_aug2_vol_bo_nbm 0.25 + aug2_df_bo_nbm_bs24_ep25_s1 0.25 + gru_cap_gate_static_s1 0.13 + tcn_aug2_vol_bo_nbm 0.10
+    fold 2: aug2_df_bo_nbm_bs24_ep25_pc 0.24 + gru_cap_gate_static_s1 0.17 + gru_aug2_vol_bo_nbm_s1 0.16 + aug2_df_bo_nbm_bs24_ep25_s1 0.15 + gru_aug2_vol_bo_nbm 0.10 + aug2_synth2nd 0.09 + gru_aug2_vol_fall 0.08
+    fold 3: aug2_df_bo_nbm_bs24_ep25 0.37 + gru_aug2_vol_bo_nbm 0.25 + svm_nbm 0.15 + aug2_synth2nd 0.13 + gru_cap_gate_static_s1 0.11
+    fold 4: aug2_df_bo_nbm_bs24_ep25_s1 0.36 + gru_cap_gate_static_s1 0.16 + aug2_df_bo_nbm_bs24_ep25_femb 0.14 + tcn_aug2_vol_bo_nbm 0.13 + svm_nbm 0.11 + gru_aug2_vol_s2 0.10
+
+[ALL rows: the blend to ship IF the rule passes (in-sample, optimistic)]
+  size 1 (single files): best 0.6434  aug2_df_bo_nbm_bs24_ep25_LR015 1.00
+  size 2 (all 2,701 pairs): best 0.6473 (+0.0040 vs best single)  aug2_df_bo_nbm_bs24_ep25_pc 0.60 + gru_aug2_vol_bo_nbm 0.40  [254s]
+  top 40 pairs (in-sample):
+    0.6473  aug2_df_bo_nbm_bs24_ep25_pc 0.6 + gru_aug2_vol_bo_nbm 0.4   (singles 0.6431 / 0.6339)
+    0.6472  aug2_df_bo_nbm_bs24_ep25 0.6 + gru_aug2_vol_bo_nbm 0.4   (singles 0.6420 / 0.6339)
+    0.6472  aug2_df_bo_nbm_bs24_ep25_FF08 0.6 + gru_aug2_vol_bo_nbm 0.4   (singles 0.6432 / 0.6339)
+    0.6471  aug2_df_bo_nbm_bs24_ep25_FF08 0.7 + gru_cap_gate_static_s1 0.3   (singles 0.6432 / 0.6203)
+    0.6470  aug2_df_bo_nbm_bs24_ep25_femb 0.6 + gru_aug2_vol_bo_nbm 0.4   (singles 0.6424 / 0.6339)
+    0.6469  aug2_df_bo_nbm_bs24_ep25_L63 0.6 + gru_aug2_vol_bo_nbm 0.4   (singles 0.6430 / 0.6339)
+    0.6469  aug2_df_bo_nbm_bs24_ep25_s1 0.7 + gru_cap_gate_static_s1 0.3   (singles 0.6429 / 0.6203)
+    0.6469  aug2_df_bo_nbm_bs24_ep25_LR015 0.7 + gru_cap_gate_static_s1 0.3   (singles 0.6434 / 0.6203)
+    0.6468  aug2_df_bo_nbm_bs24_ep25_pc 0.6 + gru_aug2_vol_bo_nbm_auxtsb 0.4   (singles 0.6431 / 0.6326)
+    0.6468  aug2_df_bo_nbm_bs24_ep25_LR015 0.6 + gru_aug2_vol_bo_nbm 0.4   (singles 0.6434 / 0.6339)
+    0.6468  aug2_df_bo_nbm_bs24_ep25_s1 0.6 + gru_aug2_vol_bo_nbm 0.4   (singles 0.6429 / 0.6339)
+    0.6468  aug2_df_bo_nbm_bs24_ep25_eqf 0.5 + gru_aug2_vol_bo_nbm 0.5   (singles 0.6416 / 0.6339)
+    0.6467  aug2_df_bo_nbm_bs24_ep25_pc 0.7 + gru_cap_gate_static_s1 0.3   (singles 0.6431 / 0.6203)
+    0.6467  aug2_df_bo_nbm_bs24_ep25_pc 0.6 + gru_aug2_vol_bo_nbm_s1 0.4   (singles 0.6431 / 0.6310)
+    0.6467  aug2_df_bo_nbm_bs24_ep25_ML500 0.5 + gru_aug2_vol_bo_nbm 0.5   (singles 0.6411 / 0.6339)
+    0.6466  aug2_df_bo_nbm_bs24_ep25_FF08 0.6 + gru_aug2_vol_bo_nbm_auxtsb 0.4   (singles 0.6432 / 0.6326)
+    0.6466  aug2_df_bo_nbm_bs24_ep25_s1 0.6 + tcn_aug2_vol_bo_nbm 0.4   (singles 0.6429 / 0.6282)
+    0.6465  aug2_df_bo_nbm_bs24_ep25_pc 0.6 + svm_nbm 0.4   (singles 0.6431 / 0.6379)
+    0.6465  aug2_df_bo_nbm_bs24_ep25 0.6 + gru_aug2_vol_bo_nbm_s1 0.4   (singles 0.6420 / 0.6310)
+    0.6465  aug2_df_bo_nbm_bs24_ep25_LR015 0.6 + gru_aug2_vol_bo_nbm_auxtsb 0.4   (singles 0.6434 / 0.6326)
+    0.6465  aug2_df_bo_nbm_bs24_ep25_L63 0.7 + gru_cap_gate_static_s1 0.3   (singles 0.6430 / 0.6203)
+    0.6465  aug2_df_bo_nbm_bs24_ep25_L63 0.6 + svm_nbm 0.4   (singles 0.6430 / 0.6379)
+    0.6465  aug2_df_bo_nbm_bs24_ep25_s1 0.7 + gru_aug2_vol_s2 0.3   (singles 0.6429 / 0.6232)
+    0.6465  aug2_df_bo_nbm_bs24_ep25_L63 0.6 + gru_aug2_vol_bo_nbm_s1 0.4   (singles 0.6430 / 0.6310)
+    0.6464  aug2_df_bo_nbm_bs24_ep25_FF08 0.7 + gru_aug2_vol_s2 0.3   (singles 0.6432 / 0.6232)
+    0.6464  aug2_df_bo_nbm_bs24_ep25_s1 0.6 + gru_aug2_vol_bo_nbm_auxtsb 0.4   (singles 0.6429 / 0.6326)
+    0.6464  aug2_df_bo_nbm_bs24_ep25_L63 0.6 + gru_aug2_vol_bo_nbm_auxtsb 0.4   (singles 0.6430 / 0.6326)
+    0.6464  aug2_df_bo_nbm_bs24_ep25_FF08 0.6 + svm_nbm 0.4   (singles 0.6432 / 0.6379)
+    0.6464  aug2_df_bo_nbm_bs24_ep25_pc 0.7 + tcn_aug2_vol_bo_nbm 0.3   (singles 0.6431 / 0.6282)
+    0.6464  aug2_df_bo_nbm_bs24_ep25_femb 0.6 + gru_aug2_vol_bo_nbm_auxtsb 0.4   (singles 0.6424 / 0.6326)
+    0.6464  aug2_df_bo_nbm_bs24_ep25_s1 0.6 + svm_nbm 0.4   (singles 0.6429 / 0.6379)
+    0.6464  aug2_df_bo_nbm_bs24_ep25_s1 0.6 + gru_aug2_vol_bo_nbm_s1 0.4   (singles 0.6429 / 0.6310)
+    0.6463  aug2_df_bo_nbm_bs24_ep25_ms 0.6 + gru_aug2_vol_bo_nbm 0.4   (singles 0.6421 / 0.6339)
+    0.6463  aug2_df_bo_nbm_bs24_ep25_femb 0.6 + svm_nbm 0.4   (singles 0.6424 / 0.6379)
+    0.6463  aug2_df_bo_nbm_bs24_ep25 0.6 + gru_aug2_vol_bo_nbm_auxtsb 0.4   (singles 0.6420 / 0.6326)
+    0.6463  aug2_df_bo_nbm_bs24_ep25_femb 0.6 + gru_aug2_vol_bo_nbm_s1 0.4   (singles 0.6424 / 0.6310)
+    0.6463  aug2_df_bo_nbm_bs24_ep25_LR015 0.7 + gru_aug2_vol_s2 0.3   (singles 0.6434 / 0.6232)
+    0.6463  aug2_df_bo_nbm_bs24_ep25_s1 0.7 + gru_aug2_vol_s1 0.3   (singles 0.6429 / 0.6218)
+    0.6463  aug2_df_bo_nbm_bs24_ep25_femb 0.7 + gru_cap_gate_static_s1 0.3   (singles 0.6424 / 0.6203)
+    0.6463  aug2_df_bo_nbm_bs24_ep25 0.7 + gru_cap_gate_static_s1 0.3   (singles 0.6420 / 0.6203)
+  best partner of every file (pair score, gain over the better single):
+    aug2_df_bo_nbm_bs24_ep25_LR015                0.6434 -> with gru_cap_gate_static_s1                        0.6469 (+0.0035)
+    aug2_df_bo_nbm_bs24_ep25_FF08                 0.6432 -> with gru_aug2_vol_bo_nbm                           0.6472 (+0.0040)
+    aug2_df_bo_nbm_bs24_ep25_pc                   0.6431 -> with gru_aug2_vol_bo_nbm                           0.6473 (+0.0043)
+    aug2_df_bo_nbm_bs24_ep25_L63                  0.6430 -> with gru_aug2_vol_bo_nbm                           0.6469 (+0.0039)
+    aug2_df_bo_nbm_bs24_ep25_s1                   0.6429 -> with gru_cap_gate_static_s1                        0.6469 (+0.0040)
+    aug2_df_bo_nbm_bs24_ep25_femb                 0.6424 -> with gru_aug2_vol_bo_nbm                           0.6470 (+0.0047)
+    aug2_df_bo_nbm_bs24_ep25_ML8000               0.6423 -> with gru_aug2_vol_bo_nbm                           0.6462 (+0.0038)
+    aug2_df_bo_nbm_bs24_ep25_ms                   0.6421 -> with gru_aug2_vol_bo_nbm                           0.6463 (+0.0042)
+    aug2_df_bo_nbm_bs24_ep25                      0.6420 -> with gru_aug2_vol_bo_nbm                           0.6472 (+0.0052)
+    aug2_df_bo_nbm_bs24_ep25_eqf                  0.6416 -> with gru_aug2_vol_bo_nbm                           0.6468 (+0.0051)
+    aug2_df_bo_nbm_bs24_ep25_L15                  0.6415 -> with gru_aug2_vol_bo_nbm                           0.6459 (+0.0045)
+    aug2_df_bo_nbm_bs24_ep25_ML500                0.6411 -> with gru_aug2_vol_bo_nbm                           0.6467 (+0.0055)
+    aug2_df_bo_nbm_bs24_ep25_FF03                 0.6404 -> with gru_aug2_vol_bo_nbm                           0.6459 (+0.0054)
+    aug2_df_bo                                    0.6380 -> with gru_aug2_vol_bo_nbm                           0.6450 (+0.0070)
+    svm_nbm                                       0.6379 -> with aug2_df_bo_nbm_bs24_ep25_pc                   0.6465 (+0.0035)
+    aug2_df_bo_bo2                                0.6375 -> with aug2_df_bo_nbm_bs24_ep25_pc                   0.6441 (+0.0010)
+    aug2_tr05                                     0.6359 -> with aug2_df_bo_nbm_bs24_ep25_pc                   0.6439 (+0.0009)
+    aug2_evc_vol_df_mmd                           0.6358 -> with gru_aug2_vol_bo_nbm                           0.6445 (+0.0088)
+    aug2_evc_vol_df                               0.6356 -> with gru_aug2_vol_bo_nbm                           0.6444 (+0.0088)
+    aug2_evc_vol                                  0.6344 -> with aug2_df_bo_nbm_bs24_ep25_LR015                0.6434 (+0.0001)
+    gru_aug2_vol_bo_nbm                           0.6339 -> with aug2_df_bo_nbm_bs24_ep25_pc                   0.6473 (+0.0043)
+    aug2_evc_vol_dc                               0.6332 -> with aug2_df_bo_nbm_bs24_ep25_L63                  0.6435 (+0.0005)
+    svm                                           0.6329 -> with aug2_df_bo_nbm_bs24_ep25_L63                  0.6457 (+0.0027)
+    svm_bo_g0.25                                  0.6329 -> with aug2_df_bo_nbm_bs24_ep25_pc                   0.6458 (+0.0027)
+    svm_bo                                        0.6328 -> with aug2_df_bo_nbm_bs24_ep25_pc                   0.6454 (+0.0023)
+    gru_aug2_vol_bo_nbm_auxtsb                    0.6326 -> with aug2_df_bo_nbm_bs24_ep25_pc                   0.6468 (+0.0038)
+    gru_aug2_vol_bo_nbm_s1                        0.6310 -> with aug2_df_bo_nbm_bs24_ep25_pc                   0.6467 (+0.0036)
+    aug2_df_bo_nbm_near10                         0.6293 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6431 (-0.0001)
+    gru_aug2_vol_bo_s1                            0.6289 -> with aug2_df_bo_nbm_bs24_ep25_s1                   0.6462 (+0.0033)
+    tcn_aug2_vol_bo_nbm                           0.6282 -> with aug2_df_bo_nbm_bs24_ep25_s1                   0.6466 (+0.0037)
+    aug2_evc                                      0.6277 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6439 (+0.0007)
+    gru_aug2_vol_bo                               0.6271 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6457 (+0.0025)
+    aug2_synth2nm_evf                             0.6269 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6445 (+0.0013)
+    aug2_evc_ext1b                                0.6262 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6443 (+0.0011)
+    aug2_synth2nd                                 0.6257 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6448 (+0.0016)
+    aug4_gpu                                      0.6257 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6439 (+0.0007)
+    aug2_gpu_ml6000                               0.6251 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6438 (+0.0006)
+    gru_aug2_vol                                  0.6248 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6456 (+0.0024)
+    aug2_gpu                                      0.6247 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6440 (+0.0008)
+    aug2_synth2nm                                 0.6234 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6444 (+0.0013)
+    gru_aug2_vol_s2                               0.6232 -> with aug2_df_bo_nbm_bs24_ep25_s1                   0.6465 (+0.0036)
+    aug2_evc_ext1                                 0.6232 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6435 (+0.0004)
+    gru_aug2_vol_fall                             0.6228 -> with aug2_df_bo_nbm_bs24_ep25_s1                   0.6451 (+0.0022)
+    gru_aug2_vol_s3                               0.6218 -> with aug2_df_bo_nbm_bs24_ep25_s1                   0.6452 (+0.0023)
+    gru_aug2_vol_s1                               0.6218 -> with aug2_df_bo_nbm_bs24_ep25_s1                   0.6463 (+0.0034)
+    gru_cap_gate_static_s1                        0.6203 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6471 (+0.0039)
+    gru_cap_l2_h96_s0                             0.6193 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6456 (+0.0024)
+    gru_cap_gate_prior_s0                         0.6191 -> with aug2_df_bo_nbm_bs24_ep25_s1                   0.6451 (+0.0022)
+    gru_aug2                                      0.6183 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6456 (+0.0025)
+    gru_aug2_s1                                   0.6179 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6456 (+0.0024)
+    gru_cap_l2_h96_gate_static_s1                 0.6178 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6461 (+0.0029)
+    gru_cap_gate_prior_s1                         0.6176 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6456 (+0.0024)
+    gru_cap_l2_h96_s1                             0.6176 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6449 (+0.0017)
+    gru_cap_l2_h128_s1                            0.6170 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6460 (+0.0028)
+    gru_cap_l3_h96_s0                             0.6165 -> with aug2_df_bo_nbm_bs24_ep25_s1                   0.6450 (+0.0021)
+    gru_cap_gate_dynamic_s1                       0.6164 -> with aug2_df_bo_nbm_bs24_ep25_s1                   0.6457 (+0.0028)
+    gru_cap_l2_h128_s0                            0.6160 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6447 (+0.0016)
+    gru_cap_gate_static_f40_s0                    0.6158 -> with aug2_df_bo_nbm_bs24_ep25_L63                  0.6453 (+0.0023)
+    loc                                           0.6158 -> with aug2_df_bo_nbm_bs24_ep25_LR015                0.6432 (-0.0002)
+    xgb_base                                      0.6155 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6434 (+0.0002)
+    gru_cap_l2_h96_gate_static_s0                 0.6152 -> with aug2_df_bo_nbm_bs24_ep25_s1                   0.6447 (+0.0018)
+    gru_aug2_synth2nm_rl03                        0.6151 -> with aug2_df_bo_nbm_bs24_ep25_LR015                0.6447 (+0.0014)
+    gru_cap_gate_static_f40_s1                    0.6150 -> with aug2_df_bo_nbm_bs24_ep25_L63                  0.6450 (+0.0020)
+    gru_sw_2348ae47_cv5                           0.6149 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6451 (+0.0020)
+    gru_cap_gate_static_s0                        0.6145 -> with aug2_df_bo_nbm_bs24_ep25_LR015                0.6453 (+0.0020)
+    loc_control                                   0.6145 -> with aug2_df_bo_nbm_bs24_ep25_LR015                0.6430 (-0.0003)
+    submit_cfg                                    0.6145 -> with aug2_df_bo_nbm_bs24_ep25_LR015                0.6430 (-0.0003)
+    gru_cap_l3_h96_s1                             0.6138 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6443 (+0.0012)
+    gru_cap_gate_dynamic_s0                       0.6132 -> with aug2_df_bo_nbm_bs24_ep25_LR015                0.6440 (+0.0006)
+    gru_aug2_synth2nm                             0.6130 -> with aug2_df_bo_nbm_bs24_ep25_s1                   0.6447 (+0.0018)
+    fine                                          0.6115 -> with aug2_df_bo_nbm_bs24_ep25_LR015                0.6432 (-0.0001)
+    gru_base_s1                                   0.6103 -> with aug2_df_bo_nbm_bs24_ep25_FF08                 0.6444 (+0.0013)
+    gru_sw_3d68afd5_cv5                           0.6058 -> with aug2_df_bo_nbm_bs24_ep25_LR015                0.6435 (+0.0001)
+    logreg                                        0.5937 -> with aug2_df_bo_nbm_bs24_ep25_L63                  0.6436 (+0.0005)
+  addition 1 (blend of 3 files): best 0.6491 (+0.0018 vs peak)  aug2_df_bo_nbm_bs24_ep25 0.48 + gru_aug2_vol_bo_nbm 0.32 + gru_cap_gate_static_s1 0.20  [259s]
+  addition 2 (blend of 4 files): best 0.6498 (+0.0007 vs peak)  aug2_df_bo_nbm_bs24_ep25_pc 0.38 + gru_aug2_vol_bo_nbm 0.26 + aug2_df_bo_nbm_bs24_ep25_FF08 0.20 + gru_cap_gate_static_s1 0.16  [264s]
+  addition 3 (blend of 5 files): best 0.6502 (+0.0004 vs peak)  aug2_df_bo_nbm_bs24_ep25_pc 0.35 + gru_aug2_vol_bo_nbm 0.23 + aug2_df_bo_nbm_bs24_ep25_FF08 0.18 + gru_cap_gate_static_s1 0.14 + svm_nbm 0.10  [270s]
+  addition 4 (blend of 6 files): best 0.6504 (+0.0002 vs peak)  aug2_df_bo_nbm_bs24_ep25_pc 0.31 + gru_aug2_vol_bo_nbm 0.21 + aug2_df_bo_nbm_bs24_ep25_s1 0.16 + gru_cap_gate_static_s1 0.13 + tcn_aug2_vol_bo_nbm 0.10 + svm_nbm 0.09  [275s]
+  stop: gain < 0.0002; peak 0.6502
+  in-sample: current 0.6489 -> found 0.6502;  weights on sd-scaled scores:
+    0.346  aug2_df_bo_nbm_bs24_ep25_pc
+    0.230  gru_aug2_vol_bo_nbm
+    0.180  aug2_df_bo_nbm_bs24_ep25_FF08
+    0.144  gru_cap_gate_static_s1
+    0.100  svm_nbm
+
+done in 275s -> C:\Users\youse\R projects\AIDA breakpoint detection benchmark\diagnostics\blend_search.txt

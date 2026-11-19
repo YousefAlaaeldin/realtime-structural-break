@@ -1,0 +1,15 @@
+K 16 CTX 2048 | Chronos on 2000 prior-fit series: 210s
+EB prior from 719 breaks: kappa0 596, alpha0 21.87, beta0 23.59 (mean post-break var 1.13); no-break stream mean +0.007 var 1.073
+Chronos on 2000 held-out series: 204s
+
+single-feature TS-AUC                all     0-100  100-300  300-700    700+   var-same
+  bo_w_logodds          0.6046   0.5557   0.5977   0.6225   0.6176   0.4618
+  bo_wu_logodds         0.6004   0.5664   0.6076   0.6019   0.6053   0.4883
+  vol_scanmax           0.5784   0.5428   0.5976   0.5700   0.5739   0.5336
+  nb_logodds            0.6238   0.5700   0.6279   0.6331   0.6322   0.5006
+  ch_logodds            0.5891   0.5614   0.5967   0.5863   0.6191   0.5311   0.75 nb_logodds
+  ch_tsb                0.5629   0.5438   0.5643   0.5652   0.5770   0.5281   0.92 nb_tsb
+  ch_lvr                0.5669   0.5432   0.5750   0.5640   0.5816   0.5327   0.69 nb_lvr
+  ch_mu                 0.5295   0.5050   0.5309   0.5373   0.5012   0.5298   0.84 nb_mu
+  ch_lsd                0.5438   0.4918   0.5495   0.5515   0.5488   0.5408   0.37 vol_win100
+  ch_lsd_mean100        0.5392   0.4797   0.5414   0.5517   0.5465   0.5410   0.36 vol_full

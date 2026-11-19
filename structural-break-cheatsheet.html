@@ -1,0 +1,460 @@
+<title>Structural Break Primer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* Layout: a control-chart notebook — a ruled reference sheet; sections flow in two columns on wide screens, one on phones. */
+:root {
+  --bg: #F4F6F7;
+  --surface: #FFFFFF;
+  --ink: #17212A;
+  --muted: #55626D;
+  --rule: #D6DDE2;
+  --accent: #15708A;
+  --accent-soft: #E0EEF2;
+  --alarm: #A85A16;
+  --alarm-soft: #F6E9DB;
+  --code-bg: #ECF0F2;
+  --hist: #C9D3DA;
+  --font-display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F151A; --surface: #161F26; --ink: #E2E8EC; --muted: #98A6B1; --rule: #28343E;
+    --accent: #5CB2CC; --accent-soft: #15313A; --alarm: #E09A55; --alarm-soft: #392716;
+    --code-bg: #1B252D; --hist: #34424D; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F151A; --surface: #161F26; --ink: #E2E8EC; --muted: #98A6B1; --rule: #28343E;
+  --accent: #5CB2CC; --accent-soft: #15313A; --alarm: #E09A55; --alarm-soft: #392716;
+  --code-bg: #1B252D; --hist: #34424D; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  padding: 0 20px;
+  padding-block: 32px 64px;
+}
+.wrap { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+
+header { display: flex; flex-direction: column; gap: 10px; }
+.eyebrow {
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--accent);
+}
+h1 {
+  font-family: var(--font-display); font-stretch: 78%; font-weight: 800;
+  font-size: clamp(34px, 6vw, 56px); line-height: 1.02; margin: 0;
+  text-wrap: balance; letter-spacing: -0.01em;
+}
+.lede { max-width: 68ch; color: var(--muted); margin: 0; font-size: 16px; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13px; color: var(--muted); align-items: center; }
+.tag {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 3px; white-space: nowrap; font-weight: 500;
+}
+.tag.core { background: var(--accent-soft); color: var(--accent); }
+.tag.adv { background: var(--alarm-soft); color: var(--alarm); }
+
+/* Overview panel */
+.overview {
+  background: var(--surface); border: 1px solid var(--rule); border-radius: 6px;
+  padding: 20px; display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 24px;
+}
+.overview h2, .plan h2 { margin-top: 0; }
+.figure { overflow-x: auto; }
+.figure svg { display: block; width: 100%; min-width: 560px; height: auto; }
+.svg-label { font-family: var(--font-mono); font-size: 12px; fill: var(--muted); }
+.svg-strong { font-family: var(--font-body); font-size: 13px; font-weight: 600; fill: var(--ink); }
+.svg-tau { font-family: var(--font-mono); font-size: 13px; font-weight: 500; fill: var(--alarm); }
+.svg-ones { font-family: var(--font-mono); font-size: 13px; fill: var(--alarm); }
+.svg-zeros { font-family: var(--font-mono); font-size: 13px; fill: var(--muted); }
+
+dl.defs { margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 14px; font-size: 14px; }
+dl.defs dt { font-family: var(--font-mono); color: var(--accent); font-weight: 500; }
+dl.defs dd { margin: 0; }
+
+/* Plan map */
+.plan { display: flex; flex-direction: column; gap: 12px; }
+.plan-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.step { border-top: 3px solid var(--accent); padding-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+.step:nth-child(n+3) { border-top-color: var(--alarm); }
+.step b { font-family: var(--font-display); font-stretch: 85%; font-size: 17px; font-weight: 700; }
+.step span { font-size: 13px; color: var(--muted); }
+.step .refs { font-family: var(--font-mono); font-size: 12px; color: var(--ink); }
+
+/* Sections */
+.sheet { column-count: 2; column-gap: 36px; column-rule: 1px solid var(--rule); }
+section.card {
+  break-inside: avoid; padding-bottom: 26px; margin-bottom: 26px;
+  border-bottom: 1px solid var(--rule); display: flex; flex-direction: column; gap: 10px;
+}
+.card-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.num { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+h2 {
+  font-family: var(--font-display); font-stretch: 82%; font-weight: 700; font-size: 22px;
+  line-height: 1.15; margin: 0; text-wrap: balance;
+}
+h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 4px 0 0; font-weight: 600; }
+p { margin: 0; }
+ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 5px; }
+li::marker { color: var(--accent); }
+code, .mono { font-family: var(--font-mono); font-size: 0.88em; }
+:not(pre) > code { background: var(--code-bg); padding: 1px 5px; border-radius: 3px; }
+
+.formula {
+  font-family: var(--font-mono); font-size: 13.5px; line-height: 1.7;
+  background: var(--code-bg); border-radius: 4px; padding: 10px 14px; margin: 0;
+  overflow-x: auto; white-space: pre;
+}
+.formula .c { color: var(--muted); }
+.why { font-size: 14px; }
+.why strong { color: var(--accent); font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; margin-right: 6px; }
+.trap { font-size: 14px; }
+.trap strong { color: var(--alarm); font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; margin-right: 6px; }
+
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; }
+
+/* Bottom: self-check, glossary, reading */
+.bottom { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 36px; }
+details { border-bottom: 1px solid var(--rule); padding: 9px 0; }
+summary { cursor: pointer; font-weight: 600; }
+summary:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+details p { margin-top: 6px; color: var(--muted); font-size: 14px; }
+.gloss { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 14px; font-size: 14px; margin: 0; }
+.gloss dt { font-weight: 600; }
+.gloss dd { margin: 0; color: var(--muted); }
+.reading li { font-size: 14px; }
+a { color: var(--accent); text-underline-offset: 2px; }
+footer { font-size: 13px; color: var(--muted); }
+
+@media (max-width: 900px) {
+  .sheet { column-count: 1; }
+  .overview, .bottom { grid-template-columns: minmax(0, 1fr); }
+  .plan-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  body { padding: 0 16px; padding-block: 24px 48px; }
+  .plan-grid { grid-template-columns: minmax(0, 1fr); }
+}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">ADIA Lab Structural Break Challenge · Real-Time Edition</div>
+  <h1>Structural Break Primer</h1>
+  <p class="lede">The background you need for online change detection, from the statistics the baseline relies on up to the research-level methods. Each section gives the key ideas, the formulas, and where they come in for this challenge.</p>
+  <div class="legend">
+    <span><span class="tag core">Core</span> needed for a competitive submission</span>
+    <span><span class="tag adv">Advanced</span> needed for the frontier methods</span>
+  </div>
+</header>
+
+<div class="overview">
+  <div class="figure" role="img" aria-label="Diagram: a long historical segment with no break, followed by an online segment. A break at tau splits the online segment. Labels are 0 before tau and 1 from tau on; the ideal score rises at tau.">
+    <h2>The setup in one picture</h2>
+    <svg viewBox="0 0 760 190" xmlns="http://www.w3.org/2000/svg">
+      <text x="245" y="26" text-anchor="middle" class="svg-strong">Historical · 1,000–5,000 pts · no break · given in full</text>
+      <text x="605" y="26" text-anchor="middle" class="svg-strong">Online · 10–1,000 pts · one at a time</text>
+      <rect x="20" y="38" width="448" height="28" rx="3" style="fill: var(--hist)"/>
+      <rect x="470" y="38" width="118" height="28" style="fill: var(--accent-soft)"/>
+      <rect x="590" y="38" width="150" height="28" rx="0" style="fill: var(--alarm-soft)"/>
+      <line x1="590" y1="32" x2="590" y2="178" style="stroke: var(--alarm); stroke-width: 2; stroke-dasharray: 5 4; fill: none"/>
+      <text x="596" y="58" class="svg-tau">τ</text>
+      <text x="529" y="57" text-anchor="middle" class="svg-label">pre-break</text>
+      <text x="676" y="57" text-anchor="middle" class="svg-label">post-break</text>
+      <text x="20" y="104" class="svg-label">label yₜ (training only)</text>
+      <text x="529" y="104" text-anchor="middle" class="svg-zeros">0 0 0 0 0 0 0</text>
+      <text x="665" y="104" text-anchor="middle" class="svg-ones">1 1 1 1 1 1 1 1</text>
+      <text x="20" y="160" class="svg-label">your score sₜ ∈ [0, 1]</text>
+      <line x1="470" y1="172" x2="740" y2="172" style="stroke: var(--rule); stroke-width: 1; fill: none"/>
+      <line x1="470" y1="128" x2="740" y2="128" style="stroke: var(--rule); stroke-width: 1; stroke-dasharray: 2 3; fill: none"/>
+      <polyline points="470,166 520,163 560,167 592,164 610,156 630,141 660,134 700,131 740,130" style="fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linejoin: round"/>
+      <text x="744" y="132" class="svg-label">1</text>
+      <text x="744" y="176" class="svg-label">0</text>
+    </svg>
+  </div>
+  <dl class="defs">
+    <dt>τ</dt><dd>Break position, 0-indexed within the online segment. <code>None</code> in about half of the series.</dd>
+    <dt>yₜ</dt><dd><code>1</code> if a break exists and <code>t ≥ τ</code>, else <code>0</code>. The step <code>t = τ</code> already counts as post-break.</dd>
+    <dt>sₜ</dt><dd>What you output after seeing point <code>t</code>: how confident you are that the break has already happened.</dd>
+    <dt>TS-AUC</dt><dd>At each step, ranks all series by sₜ against yₜ (an AUC), then averages those AUCs, weighted by <code>n_pos·n_neg</code>.</dd>
+  </dl>
+</div>
+
+<div class="plan">
+  <h2>Which sections each step of the plan needs</h2>
+  <div class="plan-grid">
+    <div class="step"><b>1 · GBM on streaming features</b><span>Per-step features, labels, CV, metric</span><span class="refs">§1 §2 §5 §6 §7 §8</span></div>
+    <div class="step"><b>2 · Detector bank as features</b><span>CUSUM, BOCPD, kernel, conformal</span><span class="refs">§3 §4 §9 §10</span></div>
+    <div class="step"><b>3 · Synthetic breaks</b><span>More labelled training data</span><span class="refs">§2 §11</span></div>
+    <div class="step"><b>4 · Small GRU + blend</b><span>Learned streaming state</span><span class="refs">§11 §7</span></div>
+  </div>
+</div>
+
+<main class="sheet">
+
+<section class="card" id="s1">
+  <div class="card-head"><span class="num">§1</span><h2>Time-series basics</h2><span class="tag core">Core</span></div>
+  <ul>
+    <li><b>Stationary</b> means the statistical behaviour doesn't change over time. The historical segment is your stationary reference: "normal" for this series.</li>
+    <li><b>Moments.</b> Mean (level), variance (spread), skewness (asymmetry), kurtosis (how heavy the tails are).</li>
+    <li><b>Autocorrelation ρₖ.</b> How much <code>xₜ</code> resembles <code>xₜ₋ₖ</code>. Real series are rarely independent, and autocorrelated noise makes naive tests raise false alarms.</li>
+    <li><b>AR(p) model and residuals.</b> Fit <code>xₜ</code> as a linear function of its last p values on the historical segment. The residuals are close to independent, so you can monitor them with simple tests ("whitening").</li>
+    <li><b>Volatility clustering (GARCH).</b> In financial series, variance moves around on its own without any permanent break. This can trigger a variance detector by mistake.</li>
+  </ul>
+  <pre class="formula">zₜ  = (xₜ − μ_H) / σ_H          <span class="c"># standardise by HISTORY, not by online data</span>
+ρₖ  = Cov(xₜ, xₜ₋ₖ) / Var(x)
+AR(1):  xₜ − μ = φ(xₜ₋₁ − μ) + εₜ
+resid:  eₜ = (xₜ − μ) − φ̂(xₜ₋₁ − μ)  <span class="c"># ≈ iid if no break</span></pre>
+  <p class="why"><strong>Used for</strong>Every feature is measured relative to the historical segment, usually after standardising or whitening.</p>
+</section>
+
+<section class="card" id="s2">
+  <div class="card-head"><span class="num">§2</span><h2>Kinds of structural break</h2><span class="tag core">Core</span></div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Break type</th><th>What changes</th><th>Cheap running signal</th></tr></thead>
+    <tbody>
+      <tr><td>Mean shift</td><td>Level</td><td>Running / EWMA mean of <code>zₜ</code></td></tr>
+      <tr><td>Variance change</td><td>Spread</td><td>Mean of <code>zₜ²</code> (≈ 1 if unchanged)</td></tr>
+      <tr><td>Distribution shape</td><td>Skew, tails; mean and variance can stay the same</td><td>Tail fractions beyond ±2σ/±3σ, KS distance, quantile-bin counts</td></tr>
+      <tr><td>Dependence</td><td>Autocorrelation / dynamics</td><td>Online lag-1 product <code>zₜzₜ₋₁</code> vs historical ρ₁; AR-residual CUSUM</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <ul>
+    <li><b>Small shifts take many points to detect.</b> The best possible detection delay is about <code>log(ARL) / KL</code>, where KL measures how different the before and after distributions are. For a mean shift of δ standard deviations, KL = δ²/2, so halving the shift means roughly four times the delay.</li>
+    <li>Each series has at most one break, and it's permanent. Once the data has changed, it stays changed.</li>
+  </ul>
+  <p class="why"><strong>Used for</strong>Choosing which features to compute, and creating synthetic training breaks (§11).</p>
+</section>
+
+<section class="card" id="s3">
+  <div class="card-head"><span class="num">§3</span><h2>Two-sample hypothesis tests</h2><span class="tag core">Core</span></div>
+  <p>Null hypothesis H₀: the online points come from the same process as the historical ones.</p>
+  <ul>
+    <li><b>Mean:</b> z-test or Welch t-test, or Mann–Whitney if you use ranks.</li>
+    <li><b>Variance:</b> F-test (assumes normality) or Levene (robust).</li>
+    <li><b>Whole distribution:</b> Kolmogorov–Smirnov (KS), or Anderson–Darling, which is more sensitive in the tails.</li>
+    <li><b>Likelihood ratio:</b> the most powerful test when both distributions are known (Neyman–Pearson lemma). CUSUM is built from it.</li>
+  </ul>
+  <pre class="formula">Λ = f₁(x) / f₀(x)              <span class="c"># likelihood ratio, use log Λ</span>
+D = supₓ | F̂_online(x) − F̂_hist(x) |   <span class="c"># KS statistic</span></pre>
+  <p class="trap"><strong>Trap</strong>Testing "history vs all online points so far" weakens after a late break, because the pre-break online points dilute the signal. Use sliding windows or maximise over possible split points (§4).</p>
+  <p class="trap"><strong>Trap</strong>Running a test at every step is repeated testing, so the p-values are no longer valid. That's fine here: TS-AUC only needs a good ranking, not calibrated p-values.</p>
+</section>
+
+<section class="card" id="s4">
+  <div class="card-head"><span class="num">§4</span><h2>Sequential detection</h2><span class="tag core">Core</span></div>
+  <ul>
+    <li><b>Shewhart chart.</b> Raises an alarm when a single <code>|zₜ| &gt; 3</code>. Only catches large jumps.</li>
+    <li><b>EWMA.</b> A moving average whose memory decays exponentially (the baseline uses this). Catches moderate shifts.</li>
+    <li><b>CUSUM (Page, 1954).</b> Adds up evidence and resets at zero. The standard tool. Run one for each direction, and one on <code>z²</code> for variance.</li>
+    <li><b>Page–Hinkley.</b> A CUSUM variant that uses a running mean.</li>
+    <li><b>GLR / scan.</b> Maximises over the unknown change time, so you don't need to know the shift size.</li>
+    <li><b>Shiryaev–Roberts.</b> Sums over possible change times instead of maximising. Closely related to the Bayesian approach.</li>
+  </ul>
+  <pre class="formula">CUSUM up:   S⁺ₜ = max(0, S⁺ₜ₋₁ + zₜ − k)
+CUSUM down: S⁻ₜ = max(0, S⁻ₜ₋₁ − zₜ − k)
+variance:   Vₜ  = max(0, Vₜ₋₁ + (zₜ² − 1) − k)
+LR-CUSUM:   Sₜ  = max(0, Sₜ₋₁ + log Λ(xₜ))
+GLR (mean): Gₜ  = max_j (Σᵢ₌ⱼᵗ zᵢ)² / (2(t−j+1))
+SR:         Rₜ  = (1 + Rₜ₋₁) · Λ(xₜ)
+<span class="c"># k ≈ half the shift you want to catch, in σ units</span></pre>
+  <ul>
+    <li><b>ARL</b> is the average run length before a false alarm. <b>EDD</b> is the expected detection delay. Classic detection theory trades one against the other.</li>
+    <li>Here you don't need an alarm threshold. The statistic's value is your score, or a feature for the model. Any increasing function (<code>1−e^{−S}</code>, tanh, sigmoid) gives the same per-step ranking, and so the same TS-AUC.</li>
+  </ul>
+</section>
+
+<section class="card" id="s5">
+  <div class="card-head"><span class="num">§5</span><h2>Streaming computation</h2><span class="tag core">Core</span></div>
+  <ul>
+    <li>The test data is 10,000 series × up to 1,000 steps, so up to about 10 million updates. Each step should take microseconds. A full scipy test at every step is too slow.</li>
+    <li><b>Precompute from history once:</b> μ_H, σ_H, quantiles, AR coefficients, a sorted array for ranking new points (<code>bisect</code> / <code>np.searchsorted</code>).</li>
+    <li><b>Update in O(1):</b> running sums Σz, Σz², Σz³, Σz⁴; lag products Σzₜzₜ₋₁; EWMAs at a few decay rates; CUSUMs.</li>
+    <li><b>Sliding windows:</b> a <code>collections.deque(maxlen=w)</code>; add the new value and subtract the one that drops out.</li>
+    <li>Plain Python floats beat numpy on single numbers, because numpy has a fixed per-call overhead.</li>
+  </ul>
+  <pre class="formula">Welford (stable running mean/var):
+  n += 1;  d = x − m;  m += d / n;  M2 += d · (x − m)
+  var = M2 / (n − 1)
+EWMA:   mₜ = (1 − α)·mₜ₋₁ + α·xₜ
+window: S ← S + x_new − x_dropped</pre>
+  <p class="trap"><strong>Trap</strong>Features must use only points up to t. Vectorised training code (centred rolling windows, <code>shift(-1)</code>) can quietly use future values. Compute training features with the same streaming code you use at inference.</p>
+</section>
+
+<section class="card" id="s6">
+  <div class="card-head"><span class="num">§6</span><h2>The metric: AUC and TS-AUC</h2><span class="tag core">Core</span></div>
+  <ul>
+    <li><b>AUC</b> is the probability that a randomly chosen positive gets a higher score than a randomly chosen negative (ties count ½). 0.5 is chance. It ignores the scale of the scores, only their order.</li>
+    <li><b>TS-AUC</b> computes an AUC separately at each online step t, across all series still running at t.</li>
+  </ul>
+  <pre class="formula">TS-AUC = Σₜ wₜ · AUCₜ / Σₜ wₜ,   wₜ = n_pos(t) · n_neg(t)</pre>
+  <ul>
+    <li>Scores are only compared across series at the same t. Offsets between different steps don't matter.</li>
+    <li>A score that depends only on t (for example <code>t/T</code>) gets exactly 0.5.</li>
+    <li>Steps with plenty of both classes carry the most weight. The first few steps, when almost no breaks have happened, contribute little.</li>
+    <li>Detecting early pays off: from τ onward, each step where a broken series ranks below unbroken ones costs you.</li>
+  </ul>
+  <p class="why"><strong>Used for</strong>Local evaluation, and designing the training objective (§7).</p>
+</section>
+
+<section class="card" id="s7">
+  <div class="card-head"><span class="num">§7</span><h2>Supervised learning setup</h2><span class="tag core">Core</span></div>
+  <ul>
+    <li><b>One row per (series, step)</b>, with label <code>y = 1[τ is not None and t ≥ τ]</code>. Include <code>t</code> as a feature so the model can learn how evidence builds up over time.</li>
+    <li>That's millions of rows, so subsample steps for training (for example every 5th step, or random steps per series).</li>
+    <li><b>Split folds by series</b> (<code>GroupKFold</code>). Rows from the same series are near-copies, so a random split leaks and inflates the CV score.</li>
+    <li><b>Match the objective to the metric.</b> Either use binary classification and choose the model by local TS-AUC, or use LightGBM <code>lambdarank</code> with each step t as a query group, which directly optimises ranking within each step.</li>
+    <li><b>Gradient boosting (LightGBM / XGBoost):</b> the main settings are <code>num_leaves</code>, <code>learning_rate</code>, number of trees with early stopping, and <code>min_data_in_leaf</code>. Prune features with SHAP or importance scores.</li>
+    <li>Save the model with <code>joblib</code> in <code>train()</code> and load it in <code>infer()</code>.</li>
+  </ul>
+  <p class="trap"><strong>Trap</strong>For deterministic output, set <code>seed</code>, <code>deterministic=True</code> and a fixed <code>num_threads</code> in LightGBM.</p>
+</section>
+
+<section class="card" id="s8">
+  <div class="card-head"><span class="num">§8</span><h2>Python and platform mechanics</h2><span class="tag core">Core</span></div>
+  <ul>
+    <li><b>Generators.</b> <code>infer()</code> runs one bare <code>yield</code> to signal it's ready, then yields exactly one float per online point, in order. Your per-series state lives in local variables between yields.</li>
+    <li><code>x_online</code> can only be iterated once, and you can't take <code>len()</code> of it. You don't know how long the series is.</li>
+    <li><b>Determinism:</b> rerunning must reproduce your output to within 1e-8. Fix all seeds, never break ties randomly, and keep the order of operations fixed.</li>
+    <li><b>Parallelism:</b> <code>INFER_PARALLELISM = n</code> runs separate processes, each with its own share of the series. Wrap BLAS calls in <code>threadpoolctl.threadpool_limits(1)</code> and don't write files inside <code>infer()</code>.</li>
+    <li><b>Local loop:</b> <code>crunch_tools.test()</code> writes <code>prediction/prediction.parquet</code>; labels for scoring locally are in <code>data/y_test.reduced.parquet</code>.</li>
+    <li>Check <b>Resources → Whitelisted Libraries</b> before depending on any package.</li>
+  </ul>
+</section>
+
+<section class="card" id="s9">
+  <div class="card-head"><span class="num">§9</span><h2>Bayesian online change-point detection</h2><span class="tag adv">Advanced</span></div>
+  <ul>
+    <li>Tracks the <b>run length</b> <code>rₜ</code>, the time since the last change, as a probability distribution, updated after every point (Adams &amp; MacKay, 2007).</li>
+    <li>The <b>hazard</b> H is the prior probability of a change at each step. Here about half the series break somewhere in the online segment, so set H around <code>0.5 / typical online length</code> and tune it.</li>
+    <li>Each run length has a predictive model π(x | run). A Gaussian with a conjugate Normal-Gamma prior is the classic choice. Learn the "no change yet" model from the historical segment.</li>
+    <li><b>Score</b> = 1 − (probability that the current run started back in the historical segment). That is a direct estimate of P(τ ≤ t).</li>
+    <li>The cost is O(t) per step, or O(K) if you keep only the K most likely run lengths.</li>
+  </ul>
+  <pre class="formula">grow:   P(rₜ = r+1) ∝ P(rₜ₋₁ = r) · π(xₜ | r) · (1 − H)
+change: P(rₜ = 0)   ∝ Σᵣ P(rₜ₋₁ = r) · π(xₜ | r) · H
+normalise over all r after each step</pre>
+</section>
+
+<section class="card" id="s10">
+  <div class="card-head"><span class="num">§10</span><h2>Distribution-free monitors</h2><span class="tag adv">Advanced</span></div>
+  <h3>Kernel / MMD</h3>
+  <ul>
+    <li>The Maximum Mean Discrepancy (MMD) measures the distance between two distributions using a similarity kernel. It reacts to <i>any</i> kind of distribution change.</li>
+    <li>Online kernel CUSUM compares blocks of recent points against blocks sampled from the history, at a fixed cost per step.</li>
+  </ul>
+  <pre class="formula">k(x,y) = exp(−(x−y)² / 2ℓ²)
+MMD² = E k(x,x′) + E k(y,y′) − 2 E k(x,y)</pre>
+  <h3>Conformal test martingales</h3>
+  <ul>
+    <li>Give each new point a nonconformity score (for example |AR residual|), then rank it among the historical scores to get a p-value. With no change, the p-values are uniform.</li>
+    <li>A betting function turns these p-values into a running statistic that grows when the p-values stop looking uniform.</li>
+    <li>This relies on exchangeability (roughly, the data's order not mattering), so use residuals rather than raw autocorrelated values.</li>
+  </ul>
+  <pre class="formula">pₜ = (#{j : sⱼ ≥ sₜ} + 1) / (n_H + 1)    <span class="c"># deterministic ties</span>
+f(p) = ε·p^(ε−1),  0 &lt; ε &lt; 1             <span class="c"># betting function</span>
+Cₜ = max(0, Cₜ₋₁ + log f(pₜ))            <span class="c"># conformal CUSUM</span></pre>
+  <h3>E-values</h3>
+  <ul>
+    <li>An e-value is a non-negative statistic whose expected value is at most 1 when there's no change. Multiplying them over time gives a test martingale Mₜ.</li>
+    <li>Ville's inequality bounds the false-alarm probability. E-detectors are CUSUM and Shiryaev–Roberts built from these.</li>
+  </ul>
+  <pre class="formula">P( supₜ Mₜ ≥ 1/α ) ≤ α     <span class="c"># Ville's inequality</span></pre>
+</section>
+
+<section class="card" id="s11">
+  <div class="card-head"><span class="num">§11</span><h2>Neural models and synthetic data</h2><span class="tag adv">Advanced</span></div>
+  <ul>
+    <li><b>GRU / RNN.</b> <code>hₜ = GRU(hₜ₋₁, inputₜ)</code> costs O(1) per step: a learned running state, like a CUSUM it figured out by itself. Train with binary cross-entropy on every <code>yₜ</code>. Inputs can be <code>zₜ</code>, <code>zₜ²</code>, AR residuals and detector values.</li>
+    <li>Train with <b>truncated backpropagation through time (BPTT)</b> on sequences up to 1,000 steps. Optionally warm the hidden state up on the end of the historical segment.</li>
+    <li><b>AutoCPD</b> (Li, Fearnhead, Fryzlewicz, Wang, 2024) shows that small networks can represent CUSUM-type tests, so they can learn them from data. They beat CUSUM when the noise is autocorrelated or heavy-tailed.</li>
+    <li><b>Synthetic breaks.</b> Split a break-free historical segment into a pseudo-history and a pseudo-online part. With probability ½, insert a change at a random τ: shift the mean, scale the variance, change the AR coefficient, or switch the noise distribution. This gives unlimited labelled data with realistic noise.</li>
+    <li><b>Amortised inference.</b> Pretraining on many synthetic tasks, as TabPFN and regime-change transformers do, lets a model infer at test time without fitting. It's frontier work and expensive to run here.</li>
+  </ul>
+  <p class="trap"><strong>Trap</strong>For deterministic neural inference, run on CPU, call <code>torch.use_deterministic_algorithms(True)</code>, and fix all seeds.</p>
+</section>
+
+</main>
+
+<div class="bottom">
+  <div>
+    <h2>Self-check</h2>
+    <details>
+      <summary>τ = 37. What are the labels at t = 36 and t = 37?</summary>
+      <p>0 and 1. The break step itself counts as post-break.</p>
+    </details>
+    <details>
+      <summary>Why does outputting t / T score exactly 0.5?</summary>
+      <p>At each step, every series gets the same score, so the AUC at each step is 0.5, and so is the weighted average.</p>
+    </details>
+    <details>
+      <summary>Why monitor AR residuals instead of raw values?</summary>
+      <p>Autocorrelated noise makes runs of high or low values look like breaks. Whitening makes the online points roughly independent, so CUSUM, rank tests and conformal p-values behave as intended.</p>
+    </details>
+    <details>
+      <summary>Why split cross-validation folds by series?</summary>
+      <p>Steps from the same series share almost all their features. A random split puts near-copies in both train and validation, so the CV score comes out too high.</p>
+    </details>
+    <details>
+      <summary>The variance doubles but the mean stays put. What reacts?</summary>
+      <p>The running mean of z² (or a CUSUM on z² − 1) rises above 1. A mean-only EWMA, like the baseline's, barely moves.</p>
+    </details>
+    <details>
+      <summary>Why can a test of "history vs all online points" miss a late break?</summary>
+      <p>Hundreds of pre-break online points dilute a few post-break ones. CUSUM resets, windows forget old points, and GLR searches over split points, which avoids this.</p>
+    </details>
+  </div>
+  <div>
+    <h2>Glossary</h2>
+    <dl class="gloss">
+      <dt>ARL</dt><dd>Average run length: expected steps until a false alarm when nothing has changed.</dd>
+      <dt>EDD</dt><dd>Expected detection delay after a real change.</dd>
+      <dt>KL divergence</dt><dd>How distinguishable two distributions are. It sets the best achievable detection delay.</dd>
+      <dt>Hazard</dt><dd>Prior probability of a change at each step (Bayesian online change-point detection).</dd>
+      <dt>Run length</dt><dd>Time since the most recent change.</dd>
+      <dt>Nonconformity score</dt><dd>How unusual a point looks compared with the reference data.</dd>
+      <dt>Exchangeable</dt><dd>The joint distribution doesn't depend on the order of the data. Conformal methods need this.</dd>
+      <dt>e-value</dt><dd>Evidence statistic whose expected value is at most 1 under no change. Large values are evidence of a change.</dd>
+      <dt>Whitening</dt><dd>Removing autocorrelation, for example by taking AR residuals.</dd>
+      <dt>lambdarank</dt><dd>A LightGBM objective that optimises ranking within groups. Here a group is a time step.</dd>
+      <dt>Leakage</dt><dd>When information unavailable at prediction time (future points, the same series) gets into training or validation.</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="reading">
+  <h2>Reading list, in order</h2>
+  <ul>
+    <li>Page, E. S. (1954). <i>Continuous inspection schemes.</i> Biometrika. The original CUSUM paper.</li>
+    <li>Aminikhanghahi &amp; Cook (2017). <i>A survey of methods for time series change point detection.</i> Knowledge and Information Systems. Broad overview.</li>
+    <li>Xie, Zou, Xie &amp; Veeravalli (2021). <i>Sequential (quickest) change detection: classical results and new directions.</i> IEEE JSAIT. Theory of online detection: ARL, EDD, CUSUM optimality.</li>
+    <li>Adams &amp; MacKay (2007). <a href="https://arxiv.org/abs/0710.3742">Bayesian online changepoint detection</a>.</li>
+    <li>Truong, Oudre &amp; Vayatis (2020). <i>Selective review of offline change point detection methods.</i> Signal Processing. The paper behind the <code>ruptures</code> library.</li>
+    <li>Li, Fearnhead, Fryzlewicz &amp; Wang (2024). <a href="https://arxiv.org/abs/2211.03860">Automatic change-point detection in time series via deep learning</a>. JRSSB.</li>
+    <li>Wei &amp; Xie. <a href="https://arxiv.org/abs/2211.15070">Online kernel CUSUM for change-point detection</a>.</li>
+    <li>Shin, Ramdas &amp; Rinaldo (2024). <a href="https://arxiv.org/abs/2203.03532">E-detectors: a nonparametric framework for sequential change detection</a>.</li>
+    <li>Volkhonskiy et al. (2017). <i>Inductive conformal martingales for change-point detection.</i> COPA. Then <a href="https://arxiv.org/abs/2505.04608">WATCH (2025)</a> for the modern version.</li>
+    <li>Tartakovsky, Nikiforov &amp; Basseville (2014). <i>Sequential Analysis: Hypothesis Testing and Changepoint Detection.</i> CRC Press. The reference textbook, if you go deep.</li>
+  </ul>
+</div>
+
+<footer>Reference sheet for the ADIA Lab × CrunchDAO Structural Break Challenge, Real-Time Edition (2026). Challenge rules come from the competition's overview page and baseline notebook.</footer>
+
+</div>
